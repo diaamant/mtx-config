@@ -1,22 +1,28 @@
 import json
+import logging
 import shutil
 from pathlib import Path
+import inspect  # <-- Добавлено
+
 import yaml
-import logging
+
+from core.config import settings
+from models.config_models import MODEL_MAPPING
+from pydantic import ValidationError, BaseModel  # <-- Добавлен BaseModel
 
 # Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 # Define paths
-WORK_DIR = Path("work")
-JSON_DIR = WORK_DIR / "json"
-YAML_FILE = WORK_DIR / "mediamtx01.yml"
-YAML_BACKUP_FILE = WORK_DIR / "mediamtx01.yml.bak"
+# WORK_DIR = Path("work")
+WORK_DIR = settings.MTX_WORK_DIR
+JSON_DIR = settings.MTX_JSON_DIR
+YAML_FILE = settings.MTX_YAML_FILE
+YAML_BACKUP_FILE = settings.MTX_YAML_BACKUP_FILE
 
-
-from config_models import MODEL_MAPPING
-from pydantic import ValidationError
 
 def load_data():
     """Load all JSON files into the data dictionary with error handling and validation."""
@@ -27,30 +33,52 @@ def load_data():
 
     for json_file in JSON_DIR.glob("*.json"):
         try:
-            with open(json_file, "r", encoding='utf-8') as f:
+            with open(json_file, "r", encoding="utf-8") as f:
                 content = json.load(f)
-                
+                if not content:  # Пропускаем пустые файлы
+                    logger.warning(f"File {json_file.name} is empty, skipping.")
+                    continue
+
             # Validate content with the corresponding Pydantic model
             model = MODEL_MAPPING.get(json_file.name)
-            if model:
+
+            # --- ИСПРАВЛЕНИЕ 1: Явная проверка, что model - это Pydantic-модель ---
+            is_valid_model = (
+                model and inspect.isclass(model) and issubclass(model, BaseModel)
+            )
+            # ---------------------------------------------------------------------
+
+            if is_valid_model:
                 if json_file.name == "paths.json":
                     # Special case for paths, which is a dict of Path models
-                    validated_content = {k: model.parse_obj(v) for k, v in content.items()}
-                    data[json_file.name] = {k: v.dict(by_alias=True) for k, v in validated_content.items()}
+                    validated_content = {
+                        k: model.parse_obj(v) for k, v in content.items()
+                    }
+                    data[json_file.name] = {
+                        k: v.dict(by_alias=True) for k, v in validated_content.items()
+                    }
                 else:
                     validated_content = model.parse_obj(content)
                     data[json_file.name] = validated_content.dict(by_alias=True)
             else:
-                data[json_file.name] = content # No model found, load as is
+                if model and model is dict:
+                    logger.warning(
+                        f"Model for {json_file.name} is 'dict', loading as is."
+                    )
+                data[json_file.name] = content  # No model found, load as is
 
             data[f"{json_file.name}_enabled"] = True
+
         except json.JSONDecodeError:
             logger.error(f"Error decoding JSON from {json_file}", exc_info=True)
         except ValidationError as e:
             logger.error(f"Validation error for {json_file}: {e}")
         except IOError:
             logger.error(f"Error reading file {json_file}", exc_info=True)
-            
+        except Exception as e:
+            # Ловим другие неожиданные ошибки при обработке файла
+            logger.error(f"Unexpected error processing {json_file}: {e}", exc_info=True)
+
     logger.info("Configuration data loaded and validated successfully.")
     return data
 
@@ -62,7 +90,14 @@ def save_data(data):
         for json_file_name, content in data.items():
             if not json_file_name.endswith("_enabled"):
                 try:
-                    with open(JSON_DIR / json_file_name, "w", encoding='utf-8') as f:
+                    # Пропускаем запись, если контент пустой (None или пустой dict)
+                    if not content:
+                        logger.info(
+                            f"Skipping write for empty content: {json_file_name}"
+                        )
+                        continue
+
+                    with open(JSON_DIR / json_file_name, "w", encoding="utf-8") as f:
                         json.dump(content, f, indent=2)
                 except IOError:
                     logger.error(f"Error writing to {json_file_name}", exc_info=True)
@@ -77,40 +112,31 @@ def save_data(data):
                 logger.error("Failed to create configuration backup.", exc_info=True)
                 raise
 
-        # Assemble the final YAML
+        # --- ИСПРАВЛЕНИЕ 2: Корректная сборка YAML ---
         final_config = {}
         for json_file in sorted(JSON_DIR.glob("*.json")):
             if not data.get(f"{json_file.name}_enabled", True):
                 logger.info(f"Skipping disabled section: {json_file.name}")
                 continue
-            
-            # Content is already in `data`, no need to re-read
-            content = data.get(json_file.name, {})
-            
-            if json_file.name == "paths.json":
-                if 'paths' not in final_config:
-                    final_config['paths'] = {}
-                final_config['paths'].update(content)
-            elif json_file.name.startswith("values_"):
-                key = json_file.name.replace("values_", "").replace(".json", "")
-                if key == "app":
-                    final_config.update(content)
-                else:
-                    final_config[key] = content
-            else:
-                key = json_file.name.replace(".json", "")
-                final_config[key] = content
 
-        # The logic for pathDefaults and paths seems redundant if the JSON structure is correct.
-        # The document noted this. I am simplifying it.
-        if "pathDefaults" in final_config and not final_config["pathDefaults"]:
-             final_config["pathDefaults"] = {}
-        if "paths" not in final_config:
-            final_config["paths"] = {}
+            content = data.get(json_file.name)
+            if not content:  # Пропускаем пустые секции
+                continue
+
+            # 'paths' and 'pathDefaults' - это вложенные словари
+            if json_file.name == "paths.json":
+                final_config["paths"] = content
+            elif json_file.name == "values_pathDefaults.json":
+                final_config["pathDefaults"] = content
+            else:
+                # Все остальные файлы (auth.json, values_app.json, values_rtsp.json...)
+                # содержат ключи верхнего уровня и должны быть объединены.
+                final_config.update(content)
+        # ----------------------------------------------------
 
         # Write final YAML
         try:
-            with open(YAML_FILE, "w", encoding='utf-8') as f:
+            with open(YAML_FILE, "w", encoding="utf-8") as f:
                 yaml.dump(final_config, f, default_flow_style=False, sort_keys=False)
             logger.info(f"Configuration successfully saved to {YAML_FILE}")
         except (IOError, yaml.YAMLError):
@@ -118,5 +144,7 @@ def save_data(data):
             raise
 
     except Exception:
-        logger.critical("A critical error occurred during the save process.", exc_info=True)
+        logger.critical(
+            "A critical error occurred during the save process.", exc_info=True
+        )
         raise

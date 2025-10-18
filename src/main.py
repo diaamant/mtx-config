@@ -1,4 +1,5 @@
 """Main application file for Mediamtx Configuration Editor."""
+
 import logging
 from typing import Dict, Any
 
@@ -12,8 +13,7 @@ from utils.json_utils import load_data, save_data as save_data_core
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -70,11 +70,11 @@ def update_preview() -> None:
                 continue
             if not data.get(f"{json_file_name}_enabled", True):
                 continue
-                
+
             if json_file_name == "paths.json":
-                if 'paths' not in final_config:
-                    final_config['paths'] = {}
-                final_config['paths'].update(content)
+                if "paths" not in final_config:
+                    final_config["paths"] = {}
+                final_config["paths"].update(content)
             elif json_file_name.startswith("values_"):
                 key = json_file_name.replace("values_", "").replace(".json", "")
                 if key == "app":
@@ -84,15 +84,12 @@ def update_preview() -> None:
             else:
                 key = json_file_name.replace(".json", "")
                 final_config[key] = content
-        
+
         if "paths" not in final_config:
             final_config["paths"] = {}
-            
+
         preview_content["yaml"] = yaml.dump(
-            final_config, 
-            default_flow_style=False, 
-            sort_keys=False,
-            allow_unicode=True
+            final_config, default_flow_style=False, sort_keys=False, allow_unicode=True
         )
     except Exception as e:
         logger.error(f"Preview update failed: {e}")
@@ -103,7 +100,7 @@ def validate_config() -> None:
     """Validate current configuration and show results."""
     errors = []
     warnings = []
-    
+
     # Basic validation
     if "paths.json" in data:
         paths = data["paths.json"]
@@ -112,19 +109,25 @@ def validate_config() -> None:
             if "source" in stream_config:
                 if not stream_config["source"]:
                     errors.append(f"Stream '{stream_name}': source is empty")
-                elif not stream_config["source"].startswith(("rtsp://", "rtmp://", "http://", "https://")):
-                    warnings.append(f"Stream '{stream_name}': source URL format may be invalid")
-            
+                elif not stream_config["source"].startswith(
+                    ("rtsp://", "rtmp://", "http://", "https://")
+                ):
+                    warnings.append(
+                        f"Stream '{stream_name}': source URL format may be invalid"
+                    )
+
             if "runOnDemand" in stream_config:
                 if not stream_config["runOnDemand"]:
                     errors.append(f"Stream '{stream_name}': runOnDemand is empty")
-            
+
             # Check timeout format
             if "runOnDemandStartTimeout" in stream_config:
                 timeout = stream_config["runOnDemandStartTimeout"]
-                if timeout and not any(timeout.endswith(x) for x in ['s', 'm', 'h']):
-                    warnings.append(f"Stream '{stream_name}': timeout format should end with s/m/h")
-    
+                if timeout and not any(timeout.endswith(x) for x in ["s", "m", "h"]):
+                    warnings.append(
+                        f"Stream '{stream_name}': timeout format should end with s/m/h"
+                    )
+
     # Show results
     if errors:
         ui.notify(f"Ошибки валидации: {len(errors)}", color="negative", timeout=5000)
@@ -145,8 +148,12 @@ load_config()
 with ui.header().classes("bg-primary"):
     ui.label("Mediamtx Configuration Editor").classes("text-2xl font-bold")
     ui.space()
-    ui.button("Валидация", on_click=validate_config, icon="check_circle", color="info").classes("mr-2")
-    ui.button("Предпросмотр", on_click=update_preview, icon="visibility", color="accent").classes("mr-2")
+    ui.button(
+        "Валидация", on_click=validate_config, icon="check_circle", color="info"
+    ).classes("mr-2")
+    ui.button(
+        "Предпросмотр", on_click=update_preview, icon="visibility", color="accent"
+    ).classes("mr-2")
     ui.button("Сохранить", on_click=save_and_notify, icon="save", color="positive")
 
 with ui.tabs().classes("w-full") as tabs:
@@ -157,8 +164,11 @@ with ui.tabs().classes("w-full") as tabs:
     )
     for filename in sorted_files:
         if filename in TAB_NAMES:
-            ui.tab(TAB_NAMES[filename], icon="settings" if filename != "paths.json" else "stream")
-    
+            ui.tab(
+                TAB_NAMES[filename],
+                icon="settings" if filename != "paths.json" else "stream",
+            )
+
     # Add Preview tab
     preview_tab = ui.tab("Preview", icon="code")
 
@@ -172,13 +182,13 @@ with ui.tab_panels(tabs, value=list(TAB_NAMES.values())[0]).classes("w-full"):
                     build_paths_tab(paths_tab_content, data)
             else:
                 build_generic_tab(tab_name, filename, data)
-    
+
     # Preview tab panel
     with ui.tab_panel("Preview"):
         build_preview_tab(preview_content, update_preview)
 
 # Keyboard shortcuts
-ui.keyboard(lambda e: save_and_notify() if e.key == 's' and e.modifiers.ctrl else None)
+ui.keyboard(lambda e: save_and_notify() if e.key == "s" and e.modifiers.ctrl else None)
 
 logger.info("Application started")
 ui.run(port=8080, title="Mediamtx Configuration Editor")
