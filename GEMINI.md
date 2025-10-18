@@ -126,10 +126,17 @@ source .venv/bin/activate
 ```
 mediamtx-configurator/
 ├── src/
-│   └── app.py        # <--- Ваш код NiceGUI
-│   ├── main.py         # <--- Скрипт-парсер (уже есть)
+│   ├── app.py              # <--- Основной файл приложения NiceGUI
+│   ├── main.py             # <--- Скрипт-парсер (уже есть)
+│   ├── utils/
+│   │   └── json_utils.py   # <--- Функции для работы с JSON и YAML
+│   └── ui_components/
+│       ├── __init__.py
+│       ├── generic_tab.py  # <--- Логика для общих вкладок
+│       ├── paths_tab.py    # <--- Логика для вкладки "Paths"
+│       └── ui_utils.py     # <--- Вспомогательные UI-функции
 ├── work/
-│   ├── mediamtx01.yml  # <--- Финальный результат (и исходник для main.py)
+│   ├── mediamtx01.yml      # <--- Финальный результат (и исходник для main.py)
 │   └── json/
 │       ├── auth.json
 │       ├── paths.json
