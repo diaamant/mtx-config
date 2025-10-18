@@ -2,9 +2,11 @@ from nicegui import ui
 
 
 def create_ui_element(key, value, parent_dict):
-    """Create a horizontal key:value UI pair in one row using NiceGUI."""
-    with ui.row().classes("w-full items-center no-wrap gap-2"):
-        ui.label(f"{key}:").classes("text-sm text-gray-700 whitespace-nowrap")
+    """Create a horizontal key:value UI pair with top-aligned label using NiceGUI."""
+    with ui.row().classes("w-full items-start gap-2"):
+        ui.label(f"{key}:").classes(
+            "text-sm text-gray-700 self-start whitespace-nowrap"
+        )
 
         el_classes = "flex-grow min-w-0"
         el_props = "dense outlined"
