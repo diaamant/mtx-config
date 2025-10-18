@@ -1,0 +1,98 @@
+import json
+from pathlib import Path
+import yaml
+
+
+# pprint больше не нужен, так как мы пишем в файлы
+# from pprint import pprint
+
+
+def main():
+    # 1. Определение путей
+    # Путь к исходному YAML файлу
+    full_path = Path(__file__).parent.parent / "work/mediamtx01.yml"
+    # Директория для сохранения .json файлов
+    output_dir = full_path.parent
+
+    print(f"Читаем файл конфигурации: {full_path}\n")
+
+    # Инициализируем переменные
+    values = None  # Для основных настроек (переменные)
+    paths = None  # Для настроек потоков
+    auth = {}  # Для данных аутентификации
+
+    # Ключи, которые мы считаем "данными аутентификации"
+    auth_keys = [
+        "authMethod",
+        "authInternalUsers",
+        "authHTTPAddress",
+        "authHTTPExclude",
+        "authJWTJWKS",
+        "authJWTJWKSFingerprint",
+        "authJWTClaimKey",
+        "authJWTExclude",
+        "authJWTInHTTPQuery",
+    ]
+
+    try:
+        # 2. Чтение и парсинг YAML файла
+        with open(full_path, "r", encoding="utf-8") as f:
+            config_data = yaml.safe_load(f)
+
+        if config_data:
+            # 3. Разделение данных
+
+            # 3a. Извлекаем 'paths'
+            # .pop() извлекает ключ и удаляет его из словаря
+            paths = config_data.pop("paths", None)
+
+            # 3b. Извлекаем 'auth'
+            for key in auth_keys:
+                if key in config_data:
+                    # Переносим ключ из config_data в словарь auth
+                    auth[key] = config_data.pop(key)
+
+            # 3c. 'values' - это все, что осталось в config_data
+            values = config_data
+
+            print("Файл успешно прочитан и разделен на 3 секции.")
+            print(f"Сохраняем файлы в директорию: {output_dir}\n")
+
+            # 4. Сохранение результатов в JSON файлы
+
+            # Сохраняем auth.json
+            auth_path = output_dir / "auth.json"
+            with open(auth_path, "w", encoding="utf-8") as f_auth:
+                json.dump(auth, f_auth, ensure_ascii=False, indent=4)
+            print(f"Успешно сохранены данные аутентификации: {auth_path}")
+
+            # Сохраняем values.json
+            values_path = output_dir / "values.json"
+            with open(values_path, "w", encoding="utf-8") as f_values:
+                json.dump(values, f_values, ensure_ascii=False, indent=4)
+            print(f"Успешно сохранены переменные приложения: {values_path}")
+
+            # Сохраняем paths.json (если он не пустой)
+            if paths is not None:
+                paths_path = output_dir / "paths.json"
+                with open(paths_path, "w", encoding="utf-8") as f_paths:
+                    json.dump(paths, f_paths, ensure_ascii=False, indent=4)
+                print(f"Успешно сохранены настройки потоков: {paths_path}")
+            else:
+                print("Секция 'paths' не найдена, файл 'paths.json' не создан.")
+
+            print("\nЗадача выполнена.")
+
+        else:
+            print("Файл пуст или не является корректным YAML.")
+
+    except FileNotFoundError:
+        print(f"ОШИБКА: Файл не найден по пути: {full_path}")
+    except yaml.YAMLError as e:
+        print(f"ОШИБКА: Не удалось распарсить YAML файл: {e}")
+    except Exception as e:
+        print(f"ОШИБКА: Произошла непредвиденная ошибка при чтении или записи: {e}")
+
+
+if __name__ == "__main__":
+    main()
