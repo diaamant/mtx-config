@@ -1,17 +1,19 @@
 {
-  "hls": false,
-  "hlsAddress": ":8888",
-  "hlsEncryption": false,
-  "hlsServerKey": "server.key",
-  "hlsServerCert": "server.crt",
-  "hlsAllowOrigin": "*",
-  "hlsTrustedProxies": [],
-  "hlsAlwaysRemux": false,
-  "hlsVariant": "lowLatency",
-  "hlsSegmentCount": 7,
-  "hlsSegmentDuration": "1s",
-  "hlsPartDuration": "200ms",
-  "hlsSegmentMaxSize": "50M",
-  "hlsDirectory": "",
-  "hlsMuxerCloseAfter": "60s"
+    "hls": {
+        "hls": false,
+        "hlsAddress": ":8888",
+        "hlsEncryption": false,
+        "hlsServerKey": "server.key",
+        "hlsServerCert": "server.crt",
+        "hlsAllowOrigin": "*",
+        "hlsTrustedProxies": [],
+        "hlsAlwaysRemux": false,
+        "hlsVariant": "lowLatency",
+        "hlsSegmentCount": 7,
+        "hlsSegmentDuration": "1s",
+        "hlsPartDuration": "200ms",
+        "hlsSegmentMaxSize": "50M",
+        "hlsDirectory": "",
+        "hlsMuxerCloseAfter": "60s"
+    }
 }

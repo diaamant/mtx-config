@@ -1,24 +1,26 @@
 {
-  "rtsp": true,
-  "rtspTransports": [
-    "udp",
-    "multicast",
-    "tcp"
-  ],
-  "rtspEncryption": "no",
-  "rtspAddress": ":8554",
-  "rtspsAddress": ":8322",
-  "rtpAddress": ":8000",
-  "rtcpAddress": ":8001",
-  "multicastIPRange": "224.1.0.0/16",
-  "multicastRTPPort": 8002,
-  "multicastRTCPPort": 8003,
-  "multicastSRTPPort": 8006,
-  "multicastSRTCPPort": 8007,
-  "rtspServerKey": "server.key",
-  "rtspServerCert": "server.crt",
-  "rtspAuthMethods": [
-    "basic"
-  ],
-  "rtspUDPReadBufferSize": 0
+    "rtsp": {
+        "rtsp": true,
+        "rtspTransports": [
+            "udp",
+            "multicast",
+            "tcp"
+        ],
+        "rtspEncryption": "no",
+        "rtspAddress": ":8554",
+        "rtspsAddress": ":8322",
+        "rtpAddress": ":8000",
+        "rtcpAddress": ":8001",
+        "multicastIPRange": "224.1.0.0/16",
+        "multicastRTPPort": 8002,
+        "multicastRTCPPort": 8003,
+        "multicastSRTPPort": 8006,
+        "multicastSRTCPPort": 8007,
+        "rtspServerKey": "server.key",
+        "rtspServerCert": "server.crt",
+        "rtspAuthMethods": [
+            "basic"
+        ],
+        "rtspUDPReadBufferSize": 0
+    }
 }

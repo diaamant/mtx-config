@@ -1,196 +1,184 @@
-import json
+"""Main application file for Mediamtx Configuration Editor."""
+import logging
+from typing import Dict, Any
+
 import yaml
-from pathlib import Path
+from nicegui import ui
 
-# --- СПИСКИ КЛЮЧЕЙ ДЛЯ РАЗДЕЛЕНИЯ ---
-# Ключи, относящиеся к аутентификации
-AUTH_KEYS = [
-    "authMethod",
-    "authInternalUsers",
-    "authHTTPAddress",
-    "authHTTPExclude",
-    "authJWTJWKS",
-    "authJWTJWKSFingerprint",
-    "authJWTClaimKey",
-    "authJWTExclude",
-    "authJWTInHTTPQuery",
-]
+from ui_components.generic_tab import build_generic_tab
+from ui_components.paths_tab import build_paths_tab
+from ui_components.preview_tab import build_preview_tab
+from utils.json_utils import load_data, save_data as save_data_core
 
-# Ключи, относящиеся к RTSP
-RTSP_KEYS = [
-    "rtsp",
-    "rtspTransports",
-    "rtspEncryption",
-    "rtspAddress",
-    "rtspsAddress",
-    "rtpAddress",
-    "rtcpAddress",
-    "multicastIPRange",
-    "multicastRTPPort",
-    "multicastRTCPPort",
-    "multicastSRTPPort",
-    "multicastSRTCPPort",
-    "rtspServerKey",
-    "rtspServerCert",
-    "rtspAuthMethods",
-    "rtspUDPReadBufferSize",
-]
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# Ключи, относящиеся к WebRTC
-WEBRTC_KEYS = [
-    "webrtc",
-    "webrtcAddress",
-    "webrtcEncryption",
-    "webrtcServerKey",
-    "webrtcServerCert",
-    "webrtcAllowOrigin",
-    "webrtcTrustedProxies",
-    "webrtcLocalUDPAddress",
-    "webrtcLocalTCPAddress",
-    "webrtcIPsFromInterfaces",
-    "webrtcIPsFromInterfacesList",
-    "webrtcAdditionalHosts",
-    "webrtcICEServers2",
-    "webrtcHandshakeTimeout",
-    "webrtcTrackGatherTimeout",
-    "webrtcSTUNGatherTimeout",
-]
+# Tab names mapping
+TAB_NAMES = {
+    "values_app.json": "App (Основные)",
+    "auth.json": "Auth",
+    "values_rtsp.json": "RTSP",
+    "values_webrtc.json": "WebRTC",
+    "values_hls.json": "HLS",
+    "values_rtmp.json": "RTMP",
+    "values_srt.json": "SRT",
+    "values_pathDefaults.json": "Path Defaults",
+    "paths.json": "Paths",
+    "preview": "Preview",
+}
 
-# Ключи, относящиеся к HLS
-HLS_KEYS = [
-    "hls",
-    "hlsAddress",
-    "hlsEncryption",
-    "hlsServerKey",
-    "hlsServerCert",
-    "hlsAllowOrigin",
-    "hlsTrustedProxies",
-    "hlsAlwaysRemux",
-    "hlsVariant",
-    "hlsSegmentCount",
-    "hlsSegmentDuration",
-    "hlsPartDuration",
-    "hlsSegmentMaxSize",
-    "hlsDirectory",
-    "hlsMuxerCloseAfter",
-]
-
-# Ключи, относящиеся к RTMP
-RTMP_KEYS = [
-    "rtmp",
-    "rtmpAddress",
-    "rtmpEncryption",
-    "rtmpsAddress",
-    "rtmpServerKey",
-    "rtmpServerCert",
-]
-
-# Ключи, относящиеся к SRT
-SRT_KEYS = [
-    "srt",
-    "srtAddress",
-    "srtpAddress",
-    "srtcpAddress",
-]
+# Data storage
+data: Dict[str, Any] = {}
+preview_content = {"yaml": ""}
 
 
-# ---------------------------------------------
-
-
-def pop_keys_to_dict(source_dict, keys_list):
-    """
-    Извлекает (с удалением) ключи из source_dict в новый словарь.
-    """
-    new_dict = {}
-    for key in keys_list:
-        if key in source_dict:
-            new_dict[key] = source_dict.pop(key)
-    return new_dict
-
-
-def save_json_data(data, file_path):
-    """
-    Сохраняет данные в .json файл, если данные не пустые.
-    """
-    if not data:
-        print(f"Нет данных для {file_path.name}, файл не создан.")
-        return
+def load_config() -> None:
+    """Load configuration data."""
+    global data
     try:
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=4)
-        print(f"Успешно сохранен: {file_path}")
+        data = load_data()
+        logger.info("Configuration loaded successfully")
     except Exception as e:
-        print(f"ОШИБКА сохранения {file_path}: {e}")
+        logger.error(f"Failed to load configuration: {e}")
+        ui.notify(f"Ошибка загрузки конфигурации: {e}", color="negative", timeout=5000)
 
 
-def main():
-    # 1. Определение путей
-    # Предполагаем, что main.py лежит в <project_root>/src/
-    # а mediamtx01.yml лежит в <project_root>/work/
-    base_dir = Path(__file__).parent.parent
-    config_file_path = base_dir / "work/mediamtx01.yml"
-
-    # Новый каталог для вывода
-    output_dir = base_dir / "work/json/"
-
-    # Создаем директорию, если ее нет
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    print(f"Читаем файл конфигурации: {config_file_path}")
-    print(f"Сохраняем JSON в директорию: {output_dir}\n")
-
+def save_and_notify() -> None:
+    """Wrapper to call core save function and show UI notification."""
     try:
-        # 2. Чтение и парсинг YAML
-        with open(config_file_path, "r", encoding="utf-8") as f:
-            config_data = yaml.safe_load(f)
-
-        if not config_data:
-            print("Файл пуст или не является корректным YAML.")
-            return
-
-        print("Файл успешно прочитан. Начинаем разделение данных...")
-
-        # 3. Разделение данных
-
-        # 3a. Извлекаем 'paths' (это вложенный словарь)
-        paths_data = config_data.pop("paths", None)
-
-        # 3b. Извлекаем 'pathDefaults' (это вложенный словарь)
-        path_defaults_data = config_data.pop("pathDefaults", None)
-
-        # 3c. Извлекаем группы ключей
-        auth_data = pop_keys_to_dict(config_data, AUTH_KEYS)
-        rtsp_data = pop_keys_to_dict(config_data, RTSP_KEYS)
-        webrtc_data = pop_keys_to_dict(config_data, WEBRTC_KEYS)
-        hls_data = pop_keys_to_dict(config_data, HLS_KEYS)
-        rtmp_data = pop_keys_to_dict(config_data, RTMP_KEYS)
-        srt_data = pop_keys_to_dict(config_data, SRT_KEYS)
-
-        # 3d. Все, что осталось - это 'values_app'
-        app_data = config_data
-
-        print("\nРазделение завершено. Начинаем сохранение файлов...")
-
-        # 4. Сохранение результатов в JSON файлы
-        save_json_data(paths_data, output_dir / "paths.json")
-        save_json_data(auth_data, output_dir / "auth.json")
-        save_json_data(path_defaults_data, output_dir / "values_pathDefaults.json")
-        save_json_data(rtsp_data, output_dir / "values_rtsp.json")
-        save_json_data(webrtc_data, output_dir / "values_webrtc.json")
-        save_json_data(hls_data, output_dir / "values_hls.json")
-        save_json_data(rtmp_data, output_dir / "values_rtmp.json")
-        save_json_data(srt_data, output_dir / "values_srt.json")
-        save_json_data(app_data, output_dir / "values_app.json")
-
-        print("\nЗадача выполнена.")
-
-    except FileNotFoundError:
-        print(f"ОШИБКА: Файл не найден по пути: {config_file_path}")
-    except yaml.YAMLError as e:
-        print(f"ОШИБКА: Не удалось распарсить YAML файл: {e}")
+        save_data_core(data)
+        ui.notify("Конфигурация успешно сохранена!", color="positive")
+        logger.info("Configuration saved successfully")
+        # Update preview after save
+        update_preview()
     except Exception as e:
-        print(f"ОШИБКА: Произошла непредвиденная ошибка: {e}")
+        logger.error(f"Save failed: {e}", exc_info=True)
+        ui.notify(f"Ошибка при сохранении: {e}", color="negative", timeout=5000)
 
 
-if __name__ == "__main__":
-    main()
+def update_preview() -> None:
+    """Update preview with current configuration."""
+    try:
+        # Assemble configuration like save does
+        final_config = {}
+        for json_file_name, content in data.items():
+            if json_file_name.endswith("_enabled"):
+                continue
+            if not data.get(f"{json_file_name}_enabled", True):
+                continue
+                
+            if json_file_name == "paths.json":
+                if 'paths' not in final_config:
+                    final_config['paths'] = {}
+                final_config['paths'].update(content)
+            elif json_file_name.startswith("values_"):
+                key = json_file_name.replace("values_", "").replace(".json", "")
+                if key == "app":
+                    final_config.update(content)
+                else:
+                    final_config[key] = content
+            else:
+                key = json_file_name.replace(".json", "")
+                final_config[key] = content
+        
+        if "paths" not in final_config:
+            final_config["paths"] = {}
+            
+        preview_content["yaml"] = yaml.dump(
+            final_config, 
+            default_flow_style=False, 
+            sort_keys=False,
+            allow_unicode=True
+        )
+    except Exception as e:
+        logger.error(f"Preview update failed: {e}")
+        preview_content["yaml"] = f"Error generating preview: {e}"
+
+
+def validate_config() -> None:
+    """Validate current configuration and show results."""
+    errors = []
+    warnings = []
+    
+    # Basic validation
+    if "paths.json" in data:
+        paths = data["paths.json"]
+        for stream_name, stream_config in paths.items():
+            # Check for required fields based on type
+            if "source" in stream_config:
+                if not stream_config["source"]:
+                    errors.append(f"Stream '{stream_name}': source is empty")
+                elif not stream_config["source"].startswith(("rtsp://", "rtmp://", "http://", "https://")):
+                    warnings.append(f"Stream '{stream_name}': source URL format may be invalid")
+            
+            if "runOnDemand" in stream_config:
+                if not stream_config["runOnDemand"]:
+                    errors.append(f"Stream '{stream_name}': runOnDemand is empty")
+            
+            # Check timeout format
+            if "runOnDemandStartTimeout" in stream_config:
+                timeout = stream_config["runOnDemandStartTimeout"]
+                if timeout and not any(timeout.endswith(x) for x in ['s', 'm', 'h']):
+                    warnings.append(f"Stream '{stream_name}': timeout format should end with s/m/h")
+    
+    # Show results
+    if errors:
+        ui.notify(f"Ошибки валидации: {len(errors)}", color="negative", timeout=5000)
+        for err in errors[:5]:  # Show first 5
+            logger.error(f"Validation error: {err}")
+    elif warnings:
+        ui.notify(f"Предупреждения: {len(warnings)}", color="warning", timeout=3000)
+        for warn in warnings[:5]:
+            logger.warning(f"Validation warning: {warn}")
+    else:
+        ui.notify("Валидация пройдена успешно!", color="positive")
+        logger.info("Validation passed")
+
+
+# --- Main UI Setup ---
+load_config()
+
+with ui.header().classes("bg-primary"):
+    ui.label("Mediamtx Configuration Editor").classes("text-2xl font-bold")
+    ui.space()
+    ui.button("Валидация", on_click=validate_config, icon="check_circle", color="info").classes("mr-2")
+    ui.button("Предпросмотр", on_click=update_preview, icon="visibility", color="accent").classes("mr-2")
+    ui.button("Сохранить", on_click=save_and_notify, icon="save", color="positive")
+
+with ui.tabs().classes("w-full") as tabs:
+    # Create tabs in a specific order
+    sorted_files = sorted(
+        [key for key in data.keys() if not key.endswith("_enabled")],
+        key=lambda x: list(TAB_NAMES.keys()).index(x) if x in TAB_NAMES else 999,
+    )
+    for filename in sorted_files:
+        if filename in TAB_NAMES:
+            ui.tab(TAB_NAMES[filename], icon="settings" if filename != "paths.json" else "stream")
+    
+    # Add Preview tab
+    preview_tab = ui.tab("Preview", icon="code")
+
+with ui.tab_panels(tabs, value=list(TAB_NAMES.values())[0]).classes("w-full"):
+    for filename in sorted_files:
+        if filename in TAB_NAMES:
+            tab_name = TAB_NAMES[filename]
+            if filename == "paths.json":
+                with ui.tab_panel(tab_name):
+                    paths_tab_content = ui.column().classes("w-full")
+                    build_paths_tab(paths_tab_content, data)
+            else:
+                build_generic_tab(tab_name, filename, data)
+    
+    # Preview tab panel
+    with ui.tab_panel("Preview"):
+        build_preview_tab(preview_content, update_preview)
+
+# Keyboard shortcuts
+ui.keyboard(lambda e: save_and_notify() if e.key == 's' and e.modifiers.ctrl else None)
+
+logger.info("Application started")
+ui.run(port=8080, title="Mediamtx Configuration Editor")

@@ -1,6 +1,8 @@
 {
-  "srt": true,
-  "srtAddress": ":8890",
-  "srtpAddress": ":8004",
-  "srtcpAddress": ":8005"
+    "srt": {
+        "srt": true,
+        "srtAddress": ":8890",
+        "srtpAddress": ":8004",
+        "srtcpAddress": ":8005"
+    }
 }

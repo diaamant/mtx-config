@@ -6,5 +6,9 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "nicegui>=3.0.4",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
     "pyyaml==6.0.3",
 ]

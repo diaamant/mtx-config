@@ -164,3 +164,8 @@ cython_debug/
 # .windsurfrules
 
 .ruff_cache
+
+# Project-specific
+work/mediamtx01.yml.bak*
+work/json/*_enabled
+*.log
