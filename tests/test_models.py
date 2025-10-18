@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from models.models import StreamConfig, PathsConfig, AuthConfig, RTSPConfig
+from models.test_models import StreamConfig, PathsConfig, AuthConfig, RTSPConfig
 
 
 class TestStreamConfig:

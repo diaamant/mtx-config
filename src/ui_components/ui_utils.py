@@ -26,7 +26,10 @@ def create_ui_element(key: str, value: Any, parent_dict: Dict[str, Any]) -> None
         el_classes = "flex-grow min-w-0"
         el_props = "dense outlined"
 
-        if isinstance(value, bool):
+        if value is None:
+            ui.label("None").classes(el_classes)
+
+        elif isinstance(value, bool):
             ui.checkbox().bind_value(parent_dict, key).classes(el_classes)
 
         elif isinstance(value, list):

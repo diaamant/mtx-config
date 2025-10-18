@@ -2,7 +2,8 @@ import pytest
 import os
 import json
 from pathlib import Path
-from src.utils.json_utils import load_data, save_data
+from src.utils.json_utils import load_data
+from src.utils.yaml_utils import save_data
 
 
 # Create a fixture for a temporary work directory

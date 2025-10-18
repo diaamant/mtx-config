@@ -9,7 +9,8 @@ from nicegui import ui
 from ui_components.generic_tab import build_generic_tab
 from ui_components.paths_tab import build_paths_tab
 from ui_components.preview_tab import build_preview_tab
-from utils.json_utils import load_data, save_data as save_data_core
+from utils.json_utils import load_data
+from src.utils.yaml_utils import save_data as save_data_core
 
 # Configure logging
 logging.basicConfig(
