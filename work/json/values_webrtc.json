@@ -1,27 +1,25 @@
 {
-    "webrtc": {
-        "webrtc": true,
-        "webrtcAddress": ":8889",
-        "webrtcEncryption": false,
-        "webrtcServerKey": "server.key",
-        "webrtcServerCert": "server.crt",
-        "webrtcAllowOrigin": "*",
-        "webrtcTrustedProxies": [],
-        "webrtcLocalUDPAddress": ":8189",
-        "webrtcLocalTCPAddress": "",
-        "webrtcIPsFromInterfaces": true,
-        "webrtcIPsFromInterfacesList": [
-            "wg0"
-        ],
-        "webrtcAdditionalHosts": [
-            "127.0.0.1",
-            "192.168.1.11",
-            "192.168.137.1",
-            "10.23.254.6"
-        ],
-        "webrtcICEServers2": [],
-        "webrtcHandshakeTimeout": "15s",
-        "webrtcTrackGatherTimeout": "5s",
-        "webrtcSTUNGatherTimeout": "0s"
-    }
+    "webrtc": true,
+    "webrtcAddress": ":8889",
+    "webrtcEncryption": false,
+    "webrtcServerKey": "server.key",
+    "webrtcServerCert": "server.crt",
+    "webrtcAllowOrigin": "*",
+    "webrtcTrustedProxies": [],
+    "webrtcLocalUDPAddress": ":8189",
+    "webrtcLocalTCPAddress": "",
+    "webrtcIPsFromInterfaces": true,
+    "webrtcIPsFromInterfacesList": [
+        "wg0"
+    ],
+    "webrtcAdditionalHosts": [
+        "127.0.0.1",
+        "192.168.1.11",
+        "192.168.137.1",
+        "10.23.254.6"
+    ],
+    "webrtcICEServers2": [],
+    "webrtcHandshakeTimeout": "15s",
+    "webrtcTrackGatherTimeout": "5s",
+    "webrtcSTUNGatherTimeout": "0s"
 }

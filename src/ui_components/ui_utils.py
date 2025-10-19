@@ -60,10 +60,18 @@ def create_ui_element(key: str, value: Any, parent_dict: Dict[str, Any]) -> None
                     parent_dict, key
                 ).props(el_props).classes(el_classes)
 
-        else:
-            ui.label(f"Unsupported type: {type(value).__name__}").classes(
-                f"{el_classes} text-warning"
-            )
+        elif isinstance(value, dict):
+            # Handle dictionaries as JSON
+            import json
+            ui.textarea(
+                value=json.dumps(value, indent=2, ensure_ascii=False),
+                placeholder=f"Введите {key} (JSON формат)",
+            ).on(
+                "change",
+                lambda e, k=key: parent_dict.update(
+                    {k: json.loads(e.value) if e.value.strip() else {}}
+                ),
+            ).props(el_props).classes(el_classes)
 
 
 def get_parameter_tooltip(param_name: str) -> str:
