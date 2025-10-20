@@ -1,4 +1,5 @@
 """ConfigManager class for centralized data management."""
+
 import json
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional
@@ -268,7 +269,10 @@ class MtxConfigManager:
                 final_config["paths"] = {}
 
             self.preview_content["yaml"] = yaml.dump(
-                final_config, default_flow_style=False, sort_keys=False, allow_unicode=True
+                final_config,
+                default_flow_style=False,
+                sort_keys=False,
+                allow_unicode=True,
             )
         except Exception as e:
             logger.error(f"Preview update failed: {e}")
