@@ -1,25 +1,25 @@
 """ConfigManager class for centralized data management."""
-
 import json
-import logging
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional
 
+import yaml
 from pydantic import ValidationError
 
-from src.core.config import settings
+from src.core.config import get_settings
+from src.core.log import logger
 from src.models.test_models import AuthConfig, PathsConfig, RTSPConfig, StreamConfig
 
-logger = logging.getLogger(__name__)
 
-
-class ConfigManager:
+class MtxConfigManager:
     """Centralized configuration manager with validation and observers."""
 
     def __init__(self, json_dir: Optional[Path] = None):
         """Initialize ConfigManager."""
-        self.json_dir = json_dir or settings.json_dir
+        settings = get_settings()
+        self.json_dir = json_dir or settings.MTX_JSON_DIR
         self.data: Dict[str, Any] = {}
+        self.preview_content: Dict[str, Any] = {"yaml": ""}
         self.observers: list[Callable] = []
         self._paths_config: Optional[PathsConfig] = None
 
@@ -238,3 +238,38 @@ class ConfigManager:
                 errors["values_rtsp.json"] = [str(err) for err in e.errors()]
 
         return errors
+
+    def update_preview(self) -> None:
+        """Update preview with current configuration."""
+        try:
+            # Assemble configuration like save does
+            final_config = {}
+            for json_file_name, content in self.data.items():
+                if json_file_name.endswith("_enabled"):
+                    continue
+                if not self.data.get(f"{json_file_name}_enabled", True):
+                    continue
+
+                if json_file_name == "paths.json":
+                    if "paths" not in final_config:
+                        final_config["paths"] = {}
+                    final_config["paths"].update(content)
+                elif json_file_name.startswith("values_"):
+                    key = json_file_name.replace("values_", "").replace(".json", "")
+                    if key == "app":
+                        final_config.update(content)
+                    else:
+                        final_config[key] = content
+                else:
+                    key = json_file_name.replace(".json", "")
+                    final_config[key] = content
+
+            if "paths" not in final_config:
+                final_config["paths"] = {}
+
+            self.preview_content["yaml"] = yaml.dump(
+                final_config, default_flow_style=False, sort_keys=False, allow_unicode=True
+            )
+        except Exception as e:
+            logger.error(f"Preview update failed: {e}")
+            self.preview_content["yaml"] = f"Error generating preview: {e}"

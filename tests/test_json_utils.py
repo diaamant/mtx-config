@@ -33,7 +33,7 @@ def temp_work_dir(tmp_path):
         m.setattr(original_work_dir, work_dir)
         m.setattr(original_json_dir, json_dir)
         m.setattr(original_yaml_file, yaml_file)
-        m.setattr(original_yaml_backup, yaml_file.with_suffix('.yml.bak'))
+        m.setattr(original_yaml_backup, yaml_file.with_suffix(".yml.bak"))
         yield work_dir
 
 

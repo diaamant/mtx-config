@@ -1,22 +1,16 @@
 """Main application file for Mediamtx Configuration Editor."""
 
-import logging
 from typing import Dict, Any
 
 import yaml
 from nicegui import ui
 
+from src.core.log import logger
 from ui_components.generic_tab import build_generic_tab
 from ui_components.paths_tab import build_paths_tab
 from ui_components.preview_tab import build_preview_tab
 from utils.json_utils import load_data
 from utils.yaml_utils import save_data as save_data_core
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
 
 # Tab names mapping
 TAB_NAMES = {

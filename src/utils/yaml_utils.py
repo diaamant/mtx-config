@@ -3,17 +3,19 @@ import shutil
 
 import yaml
 
-from src.core.config import settings
+from src.core.config import get_settings
 from src.utils.json_utils import logger
 
 
-JSON_DIR = settings.MTX_JSON_DIR
-YAML_FILE = settings.MTX_YAML_FILE
-YAML_BACKUP_FILE = settings.MTX_YAML_BACKUP_FILE
+def _get_paths():
+    """Get paths from settings to avoid module-level initialization."""
+    settings = get_settings()
+    return settings.MTX_JSON_DIR, settings.MTX_YAML_FILE, settings.MTX_YAML_BACKUP_FILE
 
 
 def save_data(data):
     """Save all data back to JSON files and generate the YAML with error handling."""
+    json_dir, yaml_file, yaml_backup_file = _get_paths()
     try:
         # Save data to JSON files
         for json_file_name, content in data.items():
@@ -26,24 +28,24 @@ def save_data(data):
                         )
                         continue
 
-                    with open(JSON_DIR / json_file_name, "w", encoding="utf-8") as f:
+                    with open(json_dir / json_file_name, "w", encoding="utf-8") as f:
                         json.dump(content, f, indent=2)
                 except IOError:
                     logger.error(f"Error writing to {json_file_name}", exc_info=True)
                     raise  # Re-raise to notify the caller
 
         # Create backup
-        if YAML_FILE.exists():
+        if yaml_file.exists():
             try:
-                shutil.copy(YAML_FILE, YAML_BACKUP_FILE)
-                logger.info(f"Backup created: {YAML_BACKUP_FILE}")
+                shutil.copy(yaml_file, yaml_backup_file)
+                logger.info(f"Backup created: {yaml_backup_file}")
             except IOError:
                 logger.error("Failed to create configuration backup.", exc_info=True)
                 raise
 
         # --- ИСПРАВЛЕНИЕ 2: Корректная сборка YAML ---
         final_config = {}
-        for json_file in sorted(JSON_DIR.glob("*.json")):
+        for json_file in sorted(json_dir.glob("*.json")):
             if not data.get(f"{json_file.name}_enabled", True):
                 logger.info(f"Skipping disabled section: {json_file.name}")
                 continue
@@ -65,9 +67,9 @@ def save_data(data):
 
         # Write final YAML
         try:
-            with open(YAML_FILE, "w", encoding="utf-8") as f:
+            with open(yaml_file, "w", encoding="utf-8") as f:
                 yaml.dump(final_config, f, default_flow_style=False, sort_keys=False)
-            logger.info(f"Configuration successfully saved to {YAML_FILE}")
+            logger.info(f"Configuration successfully saved to {yaml_file}")
         except (IOError, yaml.YAMLError):
             logger.error(f"Failed to write final YAML file.", exc_info=True)
             raise

@@ -1,29 +1,26 @@
 import json
-import logging
 
-from src.core.config import settings
+from src.core.config import get_settings
 from pydantic import ValidationError  # <-- Добавлен BaseModel
 
-# Set up logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
+from src.core.log import logger
 
-# Define paths
-# WORK_DIR = Path("work")
-WORK_DIR = settings.MTX_WORK_DIR
-JSON_DIR = settings.MTX_JSON_DIR
+
+# Define paths - using function to avoid module-level initialization
+def _get_json_dir():
+    """Get JSON directory from settings."""
+    return get_settings().MTX_JSON_DIR
 
 
 def load_data():
     """Load all JSON files into the data dictionary with error handling and validation."""
     data = {}
-    if not JSON_DIR.exists():
-        logger.error(f"JSON directory not found: {JSON_DIR}")
+    json_dir = _get_json_dir()
+    if not json_dir.exists():
+        logger.error(f"JSON directory not found: {json_dir}")
         return data
 
-    for json_file in JSON_DIR.glob("*.json"):
+    for json_file in json_dir.glob("*.json"):
         try:
             with open(json_file, "r", encoding="utf-8") as f:
                 content = json.load(f)

@@ -63,6 +63,7 @@ def create_ui_element(key: str, value: Any, parent_dict: Dict[str, Any]) -> None
         elif isinstance(value, dict):
             # Handle dictionaries as JSON
             import json
+
             ui.textarea(
                 value=json.dumps(value, indent=2, ensure_ascii=False),
                 placeholder=f"Введите {key} (JSON формат)",

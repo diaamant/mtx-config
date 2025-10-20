@@ -5,7 +5,8 @@ import sys
 import os
 
 # Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
+
 
 def test_singleton_pattern():
     """Test that settings singleton works correctly."""
@@ -27,6 +28,7 @@ def test_singleton_pattern():
     print(f"Settings app_port: {settings1.app_port}")
 
     return True
+
 
 if __name__ == "__main__":
     test_singleton_pattern()

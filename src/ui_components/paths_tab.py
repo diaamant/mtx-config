@@ -197,9 +197,9 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
 
         if len(stream_names) > max_displayed:
             with streams_container:
-                ui.label(f"Найдено {len(stream_names)} потоков. Отображаются первые {max_displayed}:").classes(
-                    "text-grey-6 text-center p-4 mb-4"
-                )
+                ui.label(
+                    f"Найдено {len(stream_names)} потоков. Отображаются первые {max_displayed}:"
+                ).classes("text-grey-6 text-center p-4 mb-4")
 
                 # Show first N streams
                 displayed_names = stream_names[:max_displayed]
@@ -243,16 +243,26 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
                         fields_per_group = 5
                         for i in range(0, len(stream_config), fields_per_group):
                             with ui.row().classes("w-full gap-2"):
-                                for key in list(stream_config.keys())[i:i + fields_per_group]:
+                                for key in list(stream_config.keys())[
+                                    i : i + fields_per_group
+                                ]:
                                     value = stream_config[key]
                                     with ui.column().classes("flex-1"):
-                                        ui.label(f"{key}:").classes("text-sm font-medium")
+                                        ui.label(f"{key}:").classes(
+                                            "text-sm font-medium"
+                                        )
                                         if isinstance(value, (str, int, bool)):
-                                            ui.label(str(value)).classes("text-sm text-grey-7")
+                                            ui.label(str(value)).classes(
+                                                "text-sm text-grey-7"
+                                            )
                                         elif isinstance(value, (list, dict)):
-                                            ui.label(f"[{type(value).__name__}]").classes("text-sm text-grey-5")
+                                            ui.label(
+                                                f"[{type(value).__name__}]"
+                                            ).classes("text-sm text-grey-5")
                                         else:
-                                            ui.label(str(value)).classes("text-sm text-grey-7")
+                                            ui.label(str(value)).classes(
+                                                "text-sm text-grey-7"
+                                            )
 
     def delete_stream_dialog(name: str) -> None:
         """Show delete confirmation dialog."""
@@ -298,7 +308,9 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
                 "input",
                 lambda e: (
                     search_filter_state.update({"query": e.value}),
-                    asyncio.create_task(debounced_search_update(lambda: rebuild_streams_list())),
+                    asyncio.create_task(
+                        debounced_search_update(lambda: rebuild_streams_list())
+                    ),
                 ),
             )
 
@@ -315,7 +327,9 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
                 "update",
                 lambda e: (
                     search_filter_state.update({"type_filter": e.value}),
-                    asyncio.create_task(debounced_search_update(lambda: rebuild_streams_list())),
+                    asyncio.create_task(
+                        debounced_search_update(lambda: rebuild_streams_list())
+                    ),
                 ),
             )
 
