@@ -7,6 +7,7 @@ from typing import Any, Callable, Dict, Optional
 import yaml
 from pydantic import ValidationError
 
+from src.clients.config_clients import get_config_client
 from src.core.config import get_settings
 from src.core.log import logger
 from src.models.test_models import AuthConfig, PathsConfig, RTSPConfig, StreamConfig
@@ -25,28 +26,10 @@ class MtxConfigManager:
         self._paths_config: Optional[PathsConfig] = None
 
     def load_data(self) -> Dict[str, Any]:
-        """Load all JSON files into the data dictionary."""
-        self.data = {}
-
-        if not self.json_dir.exists():
-            logger.warning(f"JSON directory does not exist: {self.json_dir}")
-            return self.data
-
-        for json_file in self.json_dir.glob("*.json"):
-            # Skip _enabled files
-            if json_file.name.endswith("_enabled"):
-                continue
-
-            try:
-                with open(json_file, "r", encoding="utf-8") as f:
-                    content = json.load(f)
-                    self.data[json_file.name] = content
-                    self.data[f"{json_file.name}_enabled"] = True
-                    logger.debug(f"Loaded {json_file.name}")
-            except json.JSONDecodeError as e:
-                logger.error(f"Failed to parse {json_file.name}: {e}")
-            except Exception as e:
-                logger.error(f"Error loading {json_file.name}: {e}")
+        """Load all JSON files into the data dictionary using JSONClient."""
+        # Use JSONClient from config_clients.py
+        json_client = get_config_client("JSON")
+        self.data = json_client.load_config()
 
         # Initialize PathsConfig with validation
         if "paths.json" in self.data:
