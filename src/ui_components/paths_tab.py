@@ -298,7 +298,7 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
                 "input",
                 lambda e: (
                     search_filter_state.update({"query": e.value}),
-                    asyncio.create_task(debounced_search_update(rebuild_streams_list)),
+                    asyncio.create_task(debounced_search_update(lambda: rebuild_streams_list())),
                 ),
             )
 
@@ -312,10 +312,10 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
                 .classes("w-40")
             )
             type_select.on(
-                "update:model-value",
+                "update",
                 lambda e: (
-                    search_filter_state.update({"type_filter": e.args}),
-                    asyncio.create_task(debounced_search_update(rebuild_streams_list)),
+                    search_filter_state.update({"type_filter": e.value}),
+                    asyncio.create_task(debounced_search_update(lambda: rebuild_streams_list())),
                 ),
             )
 

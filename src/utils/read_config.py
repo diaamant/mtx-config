@@ -127,8 +127,8 @@ def main():
     # 1. Определение путей
     # Предполагаем, что main.py лежит в <project_root>/src/
     # а mediamtx01.yml лежит в <project_root>/work/
-    base_dir = Path(__file__).parent.parent
-    config_file_path = base_dir / "work/mediamtx01.yml"
+    base_dir = Path(__file__).parent.parent.parent
+    config_file_path = base_dir / "work/mediamtx01.yml.orig"
 
     # Новый каталог для вывода
     output_dir = base_dir / "work/json/"
@@ -136,11 +136,9 @@ def main():
     # Создаем директорию, если ее нет
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"Читаем файл конфигурации: {config_file_path}")
-    print(f"Сохраняем JSON в директорию: {output_dir}\n")
-
     try:
         # 2. Чтение и парсинг YAML
+        print(f"Читаем файл конфигурации: {config_file_path}")
         with open(config_file_path, "r", encoding="utf-8") as f:
             config_data = yaml.safe_load(f)
 
@@ -172,6 +170,7 @@ def main():
         print("\nРазделение завершено. Начинаем сохранение файлов...")
 
         # 4. Сохранение результатов в JSON файлы
+        print(f"Сохраняем JSON в директорию: {output_dir}\n")
         save_json_data(paths_data, output_dir / "paths.json")
         save_json_data(auth_data, output_dir / "auth.json")
         save_json_data(path_defaults_data, output_dir / "values_pathDefaults.json")

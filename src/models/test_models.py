@@ -94,7 +94,7 @@ class RTSPConfig(BaseModel):
     """RTSP server configuration."""
 
     rtsp: Optional[bool] = True
-    rtspAddress: Optional[str] = Field(None, pattern=r"^[\w\-\.]+:\d+$")
+    rtspAddress: Optional[str] = Field(None, pattern=r"^(:?[\w\-\.]*:\d+)$")
     rtspEncryption: Optional[str] = Field(None, pattern="^(no|optional|strict)$")
 
     model_config = {

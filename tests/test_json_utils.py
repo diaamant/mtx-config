@@ -19,13 +19,21 @@ def temp_work_dir(tmp_path):
     )
     (json_dir / "values_app.json").write_text(json.dumps({"logLevel": "info"}))
 
-    # Monkeypatch the paths in json_utils
+    # Monkeypatch the paths in json_utils and yaml_utils
     original_work_dir = "src.utils.json_utils.WORK_DIR"
     original_json_dir = "src.utils.json_utils.JSON_DIR"
+    original_yaml_file = "src.utils.yaml_utils.YAML_FILE"
+    original_yaml_backup = "src.utils.yaml_utils.YAML_BACKUP_FILE"
+
+    # Create a dummy original yaml to be backed up
+    yaml_file = work_dir / "mediamtx01.yml"
+    yaml_file.write_text("original_content")
 
     with pytest.MonkeyPatch.context() as m:
         m.setattr(original_work_dir, work_dir)
         m.setattr(original_json_dir, json_dir)
+        m.setattr(original_yaml_file, yaml_file)
+        m.setattr(original_yaml_backup, yaml_file.with_suffix('.yml.bak'))
         yield work_dir
 
 
@@ -60,8 +68,9 @@ def test_save_data_creates_yaml_and_backup(temp_work_dir):
 
     # Check that the yaml file was created/updated
     assert yaml_file.exists()
-    assert "original_content" not in yaml_file.read_text()
-    assert "paths:" in yaml_file.read_text()
+    yaml_content = yaml_file.read_text()
+    assert "original_content" not in yaml_content
+    assert "paths:" in yaml_content
 
     # Check that the backup was created
     backup_file = temp_work_dir / "mediamtx01.yml.bak"
