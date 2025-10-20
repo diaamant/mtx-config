@@ -11,6 +11,7 @@ if [ ! -d ".venv" ]; then
     echo "❌ Virtual environment not found!"
     echo "Please install uv virtual environment: curl -LsSf https://astral.sh/uv/install.sh | sh"
     echo "Please run: source $HOME/.cargo/env"
+    echo "Create the virtual environment: uv venv"
     echo "Activate the virtual environment: source .venv/bin/activate"
     echo "Install requirements: uv pip sync requirements.txt --link-mode=copy"
     exit 1

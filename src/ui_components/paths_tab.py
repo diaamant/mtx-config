@@ -1,12 +1,36 @@
 """Paths tab component with live updates and search functionality."""
 
 from typing import Dict, Any, Optional, Callable
+import asyncio
 from nicegui import ui
 from .ui_utils import create_ui_element
 
 
 # Global search filter state
 search_filter_state = {"query": "", "type_filter": "all"}
+
+# Debounce timer for search
+search_debounce_timer = None
+
+
+async def debounced_search_update(rebuild_func: Callable, delay: float = 0.3) -> None:
+    """Debounced search update to reduce UI binding overhead."""
+    global search_debounce_timer
+
+    # Cancel previous timer if exists
+    if search_debounce_timer:
+        search_debounce_timer.cancel()
+
+    # Create new timer
+    search_debounce_timer = asyncio.create_task(asyncio.sleep(delay))
+
+    try:
+        await search_debounce_timer
+        # Timer completed, perform update
+        rebuild_func()
+    except asyncio.CancelledError:
+        # Timer was cancelled, do nothing
+        pass
 
 
 def add_new_stream(data: Dict[str, Any], container, rebuild_func: Callable) -> None:
@@ -144,7 +168,7 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
         return filtered
 
     def rebuild_streams_list():
-        """Rebuild the streams list with current filter."""
+        """Rebuild the streams list with current filter - optimized version."""
         streams_container.clear()
 
         paths_data = data.get("paths.json", {})
@@ -167,8 +191,23 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
                 )
             return
 
+        # Limit displayed streams to prevent too many bindings (pagination-like)
+        max_displayed = 50
+        stream_names = sorted(filtered_paths.keys())
+
+        if len(stream_names) > max_displayed:
+            with streams_container:
+                ui.label(f"Найдено {len(stream_names)} потоков. Отображаются первые {max_displayed}:").classes(
+                    "text-grey-6 text-center p-4 mb-4"
+                )
+
+                # Show first N streams
+                displayed_names = stream_names[:max_displayed]
+        else:
+            displayed_names = stream_names
+
         with streams_container:
-            for stream_name in sorted(filtered_paths.keys()):
+            for stream_name in displayed_names:
                 stream_config = filtered_paths[stream_name]
                 stream_type = get_stream_type(stream_config)
 
@@ -198,10 +237,22 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
 
                     ui.separator()
 
-                    # Configuration fields
+                    # Configuration fields - use optimized display
                     with ui.column().classes("w-full gap-2 p-2"):
-                        for key, value in sorted(stream_config.items()):
-                            create_ui_element(key, value, stream_config)
+                        # Group fields to reduce individual bindings
+                        fields_per_group = 5
+                        for i in range(0, len(stream_config), fields_per_group):
+                            with ui.row().classes("w-full gap-2"):
+                                for key in list(stream_config.keys())[i:i + fields_per_group]:
+                                    value = stream_config[key]
+                                    with ui.column().classes("flex-1"):
+                                        ui.label(f"{key}:").classes("text-sm font-medium")
+                                        if isinstance(value, (str, int, bool)):
+                                            ui.label(str(value)).classes("text-sm text-grey-7")
+                                        elif isinstance(value, (list, dict)):
+                                            ui.label(f"[{type(value).__name__}]").classes("text-sm text-grey-5")
+                                        else:
+                                            ui.label(str(value)).classes("text-sm text-grey-7")
 
     def delete_stream_dialog(name: str) -> None:
         """Show delete confirmation dialog."""
@@ -247,7 +298,7 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
                 "input",
                 lambda e: (
                     search_filter_state.update({"query": e.value}),
-                    rebuild_streams_list(),
+                    asyncio.create_task(debounced_search_update(rebuild_streams_list)),
                 ),
             )
 
@@ -264,7 +315,7 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
                 "update:model-value",
                 lambda e: (
                     search_filter_state.update({"type_filter": e.args}),
-                    rebuild_streams_list(),
+                    asyncio.create_task(debounced_search_update(rebuild_streams_list)),
                 ),
             )
 

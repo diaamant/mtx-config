@@ -43,27 +43,39 @@
     cd mtx-config
     ```
 
-2.  **Создайте и активируйте виртуальную среду:**
+2.  **Установка uv:**
+
+### An extremely fast Python package and project manager, written in Rust (https://github.com/astral-sh/uv)
     ```bash
-    python3 -m venv .venv
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    source $HOME/.cargo/env
+    ```
+
+
+2.  **Создание и активация виртуальной среды:**
+    ```bash
+    uv venv
     source .venv/bin/activate
     ```
 
-3.  **Установите зависимости с помощью `uv`:**
+3.  **Установка зависимостей с помощью `uv`:**
     ```bash
-    pip install uv
-    uv pip install -r requirements.txt
+    uv pip sync requirements.txt --link-mode=copy
     ```
 
-4.  **Настройте переменные окружения (опционально):**
+4.  **Настройка переменные окружения (опционально):**
     ```bash
-    cp .env.example .env
+    cp .env.template .env
     # Отредактируйте .env при необходимости
     ```
 
-5.  **Запустите приложение:**
+5.  **Запуск приложение:**
     ```bash
-    python3 src/main.py
+    cd /mnt/data/storeSoft/projPySample/mtx-config
+    source .venv/bin/activate
+    PYTHONPATH=/mnt/data/storeSoft/projPySample/mtx-config/src python -m src.main
+    
+    # python3 src/main.py
     ```
 
     Приложение будет доступно по адресу `http://localhost:8080`.
@@ -282,7 +294,7 @@ MTX_APP_PORT=8081
 
 ## 📄 Лицензия
 
-[Укажите лицензию проекта]
+MIT
 
 ## 🔗 Ссылки
 
