@@ -17,7 +17,7 @@ class Settings(BaseSettings):
 
     DEBUG: bool = True
     app_port: int = 8080
-    app_host: str = "0.0.0.0"
+    app_host: str = "localhost"
     MTX_WORK_DIR: Path = env_dir / "work"
     MTX_JSON_DIR: Path = env_dir / "work/json"
     MTX_YAML_FILE: Path = env_dir / "work/mediamtx01.yml"

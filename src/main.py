@@ -1,5 +1,6 @@
 from nicegui import ui
 
+from src.core.config import get_settings
 from src.core.log import logger
 from src.mtx_manager import MtxConfigManager
 from ui_components.generic_tab import build_generic_tab
@@ -108,5 +109,12 @@ with ui.tab_panels(tabs, value=list(TAB_NAMES.values())[0]).classes("w-full"):
 # Keyboard shortcuts
 ui.keyboard(lambda e: save_and_notify() if e.key == "s" and e.modifiers.ctrl else None)
 
+
 logger.info("Application started")
-ui.run(port=8080, title="Mediamtx Configuration Editor")
+settings = get_settings()
+
+ui.run(
+    port=settings.app_port,
+    host=settings.app_host,
+    title="Mediamtx Configuration Editor"
+)
