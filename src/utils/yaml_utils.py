@@ -3,7 +3,7 @@ import shutil
 
 import yaml
 
-from core.config import settings
+from src.core.config import settings
 from src.utils.json_utils import logger
 
 

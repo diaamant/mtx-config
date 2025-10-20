@@ -7,8 +7,8 @@ from typing import Any, Callable, Dict, Optional
 
 from pydantic import ValidationError
 
-from core.config import settings
-from models.test_models import AuthConfig, PathsConfig, RTSPConfig, StreamConfig
+from src.core.config import settings
+from src.models.test_models import AuthConfig, PathsConfig, RTSPConfig, StreamConfig
 
 logger = logging.getLogger(__name__)
 

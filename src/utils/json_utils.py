@@ -1,7 +1,7 @@
 import json
 import logging
 
-from core.config import settings
+from src.core.config import settings
 from pydantic import ValidationError  # <-- Добавлен BaseModel
 
 # Set up logging

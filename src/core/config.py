@@ -1,10 +1,11 @@
+import json
 """Configuration settings using pydantic-settings."""
 
-import json
 from pathlib import Path
+from typing import Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-env_dir = Path(__file__).parent.parent
+env_dir = Path(__file__).parent.parent.parent
 env_path = env_dir / ".env"
 print(f"env_path - {env_path}")
 
@@ -23,7 +24,20 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
 
 
-settings = Settings()
+# Singleton pattern implementation
+_settings_instance: Optional[Settings] = None
+
+
+def get_settings() -> Settings:
+    """Get or create the singleton settings instance."""
+    global _settings_instance
+    if _settings_instance is None:
+        _settings_instance = Settings()
+    return _settings_instance
+
+
+# Backward compatibility - keep the old settings variable
+settings = get_settings()
 
 if settings.DEBUG:
     if env_path.exists():

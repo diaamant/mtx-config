@@ -9,7 +9,10 @@ echo ""
 # Check if virtual environment exists
 if [ ! -d ".venv" ]; then
     echo "❌ Virtual environment not found!"
-    echo "Please run: python3 -m venv .venv && source .venv/bin/activate && pip install uv && uv pip install -r requirements.txt"
+    echo "Please install uv virtual environment: curl -LsSf https://astral.sh/uv/install.sh | sh"
+    echo "Please run: source $HOME/.cargo/env"
+    echo "Activate the virtual environment: source .venv/bin/activate"
+    echo "Install requirements: uv pip sync requirements.txt --link-mode=copy"
     exit 1
 fi
 
@@ -20,7 +23,6 @@ source .venv/bin/activate
 # Check if dependencies are installed
 if ! python -c "import nicegui" 2>/dev/null; then
     echo "📦 Installing dependencies..."
-    pip install uv
     uv pip install -r requirements.txt
 fi
 
