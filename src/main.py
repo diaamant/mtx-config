@@ -6,7 +6,6 @@ from src.mtx_manager import MtxConfigManager
 from ui_components.generic_tab import build_generic_tab
 from ui_components.paths_tab import build_paths_tab
 from ui_components.preview_tab import build_preview_tab
-from utils.yaml_utils import save_data as save_data_core
 
 # Tab names mapping
 TAB_NAMES = {
@@ -27,9 +26,9 @@ config_manager = MtxConfigManager()
 
 
 def save_and_notify() -> None:
-    """Wrapper to call core save function and show UI notification."""
+    """Wrapper to call save function and show UI notification."""
     try:
-        save_data_core(config_manager.data)
+        config_manager.save_data()
         ui.notify("Конфигурация успешно сохранена!", color="positive")
         logger.info("Configuration saved successfully")
         # Update preview after save

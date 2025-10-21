@@ -2,12 +2,13 @@
 
 ## Обзор
 
-Проект включает комплексную систему тестирования, состоящую из двух основных типов тестов:
+Проект включает комплексную систему тестирования, состоящую из трех основных типов тестов:
 
 ### Unit тесты
 Проверяют отдельные модули и функции приложения:
 - **Модели данных** - валидация Pydantic моделей
-- **Утилиты** - функции загрузки/сохранения JSON и YAML
+- **Конфигурационные клиенты** - JSONClient и YAMLClient
+- **Утилиты** - функции загрузки/сохранения JSON и YAML через клиентов
 - **Настройки** - singleton паттерн и конфигурация
 
 ### Playwright E2E тесты
@@ -21,7 +22,7 @@
 ### Unit тесты
 ```bash
 source .venv/bin/activate
-python -m pytest tests/test_json_utils.py tests/test_models.py -v
+python -m pytest tests/test_config_clients.py tests/test_json_utils.py tests/test_models.py -v
 ```
 
 ### Playwright E2E тесты
@@ -52,10 +53,17 @@ python -m pytest tests/ -v
 - Валидация методов аутентификации
 - Тестирование дополнительных полей
 
+### tests/test_config_clients.py
+Тесты для конфигурационных клиентов:
+- **JSONClient** - загрузка и сохранение JSON файлов
+- **YAMLClient** - сборка и сохранение YAML конфигурации
+- **Фабричная функция** - получение клиентов с кэшированием
+- Обработка ошибок файловой системы
+
 ### tests/test_json_utils.py
-Тесты для утилит работы с JSON и YAML:
-- Загрузка данных с созданием флагов enabled
-- Сохранение YAML с созданием бэкапа
+Тесты для утилит работы с JSON и YAML через клиентов:
+- Загрузка данных с созданием флагов enabled через JSONClient
+- Сохранение YAML с созданием бэкапа через YAMLClient
 - Пропуск отключенных секций
 - Обработка ошибок файловой системы
 
@@ -98,13 +106,13 @@ Playwright тесты для интерфейса:
 ### Unit тесты
 ```bash
 # Запуск с подробным выводом
-pytest -v -s tests/test_models.py
+pytest -v -s tests/test_config_clients.py
 
 # Запуск конкретного теста
-pytest tests/test_models.py::TestStreamConfig::test_valid_source_stream -v
+pytest tests/test_config_clients.py::TestJSONClient::test_load_config_success -v
 
 # С покрытием кода
-pytest --cov=src --cov-report=html tests/test_json_utils.py
+pytest --cov=src --cov-report=html tests/test_config_clients.py
 ```
 
 ### Playwright тесты
@@ -118,6 +126,6 @@ pytest tests/test_filters.py -v -m playwright --headed
 
 ## Результаты последних тестов
 
-- ✅ **Unit тесты**: 24 теста пройдены
+- ✅ **Unit тесты**: 35 тестов пройдены (добавлены тесты для клиентов)
 - ✅ **Playwright тесты**: 2 теста пройдены
-- ✅ **Всего**: 26 тестов пройдены успешно
+- ✅ **Всего**: 37 тестов пройдены успешно

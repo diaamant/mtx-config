@@ -46,6 +46,12 @@ class MtxConfigManager:
 
         return self.data
 
+    def save_data(self) -> None:
+        """Save all data using YAMLClient."""
+        yaml_client = get_config_client("YAML")
+        yaml_client.save_config(self.data)
+        logger.info("Configuration saved successfully via YAMLClient")
+
     def get(self, key: str, default: Any = None) -> Any:
         """Get configuration value."""
         return self.data.get(key, default)

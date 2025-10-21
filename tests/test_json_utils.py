@@ -1,14 +1,14 @@
 import pytest
-import os
 import json
 from pathlib import Path
-from src.utils.json_utils import load_data
-from src.utils.yaml_utils import save_data
+from unittest.mock import patch, MagicMock
+
+from src.clients.config_clients import get_config_client
 
 
-# Create a fixture for a temporary work directory
 @pytest.fixture
 def temp_work_dir(tmp_path):
+    """Create temporary work directory with JSON files."""
     work_dir = tmp_path / "work"
     json_dir = work_dir / "json"
     json_dir.mkdir(parents=True)
@@ -19,29 +19,25 @@ def temp_work_dir(tmp_path):
     )
     (json_dir / "values_app.json").write_text(json.dumps({"logLevel": "info"}))
 
-    # Monkeypatch the paths in json_utils and yaml_utils
-    original_work_dir = "src.utils.json_utils.WORK_DIR"
-    original_json_dir = "src.utils.json_utils.JSON_DIR"
-    original_yaml_file = "src.utils.yaml_utils.YAML_FILE"
-    original_yaml_backup = "src.utils.yaml_utils.YAML_BACKUP_FILE"
-
     # Create a dummy original yaml to be backed up
     yaml_file = work_dir / "mediamtx01.yml"
     yaml_file.write_text("original_content")
 
-    with pytest.MonkeyPatch.context() as m:
-        m.setattr(original_work_dir, work_dir)
-        m.setattr(original_json_dir, json_dir)
-        m.setattr(original_yaml_file, yaml_file)
-        m.setattr(original_yaml_backup, yaml_file.with_suffix(".yml.bak"))
-        yield work_dir
+    return work_dir, json_dir, yaml_file
 
 
-def test_load_data_creates_enabled_flags(temp_work_dir):
-    """
-    Tests that load_data correctly loads json files and adds the '_enabled' flag.
-    """
-    data = load_data()
+@patch('src.clients.config_clients.get_settings')
+def test_load_data_creates_enabled_flags(mock_get_settings, temp_work_dir):
+    """Tests that load_data correctly loads json files and adds the '_enabled' flag."""
+    work_dir, json_dir, yaml_file = temp_work_dir
+
+    mock_settings = MagicMock()
+    mock_settings.MTX_JSON_DIR = json_dir
+    mock_get_settings.return_value = mock_settings
+
+    # Use JSONClient instead of old load_data function
+    json_client = get_config_client("JSON")
+    data = json_client.load_config()
 
     assert "paths.json" in data
     assert "paths.json_enabled" in data
@@ -52,19 +48,24 @@ def test_load_data_creates_enabled_flags(temp_work_dir):
     assert data["values_app.json_enabled"] is True
 
 
-def test_save_data_creates_yaml_and_backup(temp_work_dir):
-    """
-    Tests that save_data correctly creates the YAML file and a backup.
-    """
-    # Load initial data
-    data = load_data()
+@patch('src.clients.config_clients.get_settings')
+def test_save_data_creates_yaml_and_backup(mock_get_settings, temp_work_dir):
+    """Tests that save_data correctly creates the YAML file and a backup."""
+    work_dir, json_dir, yaml_file = temp_work_dir
 
-    # Create a dummy original yaml to be backed up
-    yaml_file = temp_work_dir / "mediamtx01.yml"
-    yaml_file.write_text("original_content")
+    mock_settings = MagicMock()
+    mock_settings.MTX_JSON_DIR = json_dir
+    mock_settings.MTX_YAML_FILE = yaml_file
+    mock_settings.MTX_YAML_BACKUP_FILE = yaml_file.with_suffix(".yml.bak")
+    mock_get_settings.return_value = mock_settings
 
-    # Save the data
-    save_data(data)
+    # Load initial data using JSONClient
+    json_client = get_config_client("JSON")
+    data = json_client.load_config()
+
+    # Use YAMLClient to save data
+    yaml_client = get_config_client("YAML")
+    yaml_client.save_config(data)
 
     # Check that the yaml file was created/updated
     assert yaml_file.exists()
@@ -73,23 +74,31 @@ def test_save_data_creates_yaml_and_backup(temp_work_dir):
     assert "paths:" in yaml_content
 
     # Check that the backup was created
-    backup_file = temp_work_dir / "mediamtx01.yml.bak"
+    backup_file = work_dir / "mediamtx01.yml.bak"
     assert backup_file.exists()
     assert "original_content" in backup_file.read_text()
 
 
-def test_save_data_skips_disabled_sections(temp_work_dir):
-    """
-    Tests that save_data correctly skips sections that are disabled.
-    """
-    data = load_data()
+@patch('src.clients.config_clients.get_settings')
+def test_save_data_skips_disabled_sections(mock_get_settings, temp_work_dir):
+    """Tests that save_data correctly skips sections that are disabled."""
+    work_dir, json_dir, yaml_file = temp_work_dir
 
-    # Disable the 'paths.json' section
+    mock_settings = MagicMock()
+    mock_settings.MTX_JSON_DIR = json_dir
+    mock_settings.MTX_YAML_FILE = yaml_file
+    mock_settings.MTX_YAML_BACKUP_FILE = yaml_file.with_suffix(".yml.bak")
+    mock_get_settings.return_value = mock_settings
+
+    # Load data and disable a section
+    json_client = get_config_client("JSON")
+    data = json_client.load_config()
     data["paths.json_enabled"] = False
 
-    save_data(data)
+    # Use YAMLClient to save data
+    yaml_client = get_config_client("YAML")
+    yaml_client.save_config(data)
 
-    yaml_file = temp_work_dir / "mediamtx01.yml"
     yaml_content = yaml_file.read_text()
 
     # The 'paths' key should be empty or not present
