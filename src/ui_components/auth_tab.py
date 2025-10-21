@@ -113,5 +113,11 @@ def build_auth_tab(container: ui.element, data: Dict[str, Any]):
 
             with ui.card_actions().classes("w-full justify-end"):
                 ui.button(
+                    "Refresh",
+                    on_click=rebuild_users_list,
+                    icon="refresh",
+                    color="accent",
+                ).tooltip("Refresh the list to reflect name changes")
+                ui.button(
                     "Add User", on_click=add_user, icon="person_add", color="positive"
                 )

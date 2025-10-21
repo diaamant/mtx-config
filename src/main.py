@@ -114,7 +114,8 @@ with ui.tab_panels(tabs, value=list(TAB_NAMES.values())[0]).classes("w-full"):
                     auth_tab_content = ui.column().classes("w-full")
                     build_auth_tab(auth_tab_content, config_manager.data)
             else:
-                build_generic_tab(tab_name, filename, config_manager.data)
+                # build_generic_tab(tab_name, filename, config_manager.data)
+                pass
 
     # Preview tab panel
     with ui.tab_panel("Preview"):
