@@ -9,7 +9,7 @@ from ui_components.preview_tab import build_preview_tab
 
 # Tab names mapping
 TAB_NAMES = {
-    "values_app.json": "App (Основные)",
+    "values_app.json": "App",
     "auth.json": "Auth",
     "values_rtsp.json": "RTSP",
     "values_webrtc.json": "WebRTC",

@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from typing import Dict, Any
 
-from src.clients.config_clients import ConfigClient
+from src.clients.abc_conf_client import ConfigClient
 from src.core.config import get_settings
 from src.core.log import logger
 

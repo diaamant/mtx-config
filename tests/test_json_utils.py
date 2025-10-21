@@ -26,7 +26,7 @@ def temp_work_dir(tmp_path):
     return work_dir, json_dir, yaml_file
 
 
-@patch('src.clients.config_clients.get_settings')
+@patch("src.clients.config_clients.get_settings")
 def test_load_data_creates_enabled_flags(mock_get_settings, temp_work_dir):
     """Tests that load_data correctly loads json files and adds the '_enabled' flag."""
     work_dir, json_dir, yaml_file = temp_work_dir
@@ -48,7 +48,7 @@ def test_load_data_creates_enabled_flags(mock_get_settings, temp_work_dir):
     assert data["values_app.json_enabled"] is True
 
 
-@patch('src.clients.config_clients.get_settings')
+@patch("src.clients.config_clients.get_settings")
 def test_save_data_creates_yaml_and_backup(mock_get_settings, temp_work_dir):
     """Tests that save_data correctly creates the YAML file and a backup."""
     work_dir, json_dir, yaml_file = temp_work_dir
@@ -79,7 +79,7 @@ def test_save_data_creates_yaml_and_backup(mock_get_settings, temp_work_dir):
     assert "original_content" in backup_file.read_text()
 
 
-@patch('src.clients.config_clients.get_settings')
+@patch("src.clients.config_clients.get_settings")
 def test_save_data_skips_disabled_sections(mock_get_settings, temp_work_dir):
     """Tests that save_data correctly skips sections that are disabled."""
     work_dir, json_dir, yaml_file = temp_work_dir

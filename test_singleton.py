@@ -43,7 +43,9 @@ def test_client_caching():
     # Check that they are the same objects (cached)
     assert json_client1 is json_client2, "JSON clients should be cached"
     assert yaml_client1 is yaml_client2, "YAML clients should be cached"
-    assert json_client1 is not yaml_client1, "Different client types should be different"
+    assert json_client1 is not yaml_client1, (
+        "Different client types should be different"
+    )
 
     print("✓ Client caching test passed!")
     print(f"JSON client instance: {id(json_client1)}")

@@ -4,7 +4,7 @@ from typing import Dict, Any
 
 import yaml
 
-from src.clients.config_clients import ConfigClient
+from src.clients.abc_conf_client import ConfigClient
 from src.clients.json_client import JSONClient
 from src.core.config import get_settings
 from src.core.log import logger

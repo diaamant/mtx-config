@@ -10,7 +10,7 @@ from pydantic import ValidationError
 from src.clients.config_clients import get_config_client
 from src.core.config import get_settings
 from src.core.log import logger
-from src.models.test_models import AuthConfig, PathsConfig, RTSPConfig, StreamConfig
+from src.models.check_models import AuthConfig, PathsConfig, RTSPConfig, StreamConfig
 
 
 class MtxConfigManager:

@@ -62,7 +62,7 @@ pytest
 pytest --cov=src --cov-report=term-missing
 
 # Конкретный файл
-pytest tests/test_models.py -v
+pytest tests/check_models.py -v
 ```
 
 ## Линтинг

@@ -22,7 +22,7 @@
 ### Unit тесты
 ```bash
 source .venv/bin/activate
-python -m pytest tests/test_config_clients.py tests/test_json_utils.py tests/test_models.py -v
+python -m pytest tests/test_config_clients.py tests/test_json_utils.py tests/check_models.py -v
 ```
 
 ### Playwright E2E тесты
