@@ -3,6 +3,22 @@
 from typing import Any, Dict, Union
 from nicegui import ui
 
+el_classes = "flex-grow min-w-0"
+el_props = "dense outlined"
+
+
+def create_ui_list(key: str, value: Any, parent_dict: Dict[str, Any]):
+    # Handle lists with proper filtering of empty lines
+    ui.textarea(
+        value="\n".join(map(str, value)),
+        placeholder="Введите значения, каждое с новой строки",
+    ).on(
+        "change",
+        lambda e, k=key: parent_dict.update(
+            {k: [line for line in e.value.splitlines() if line.strip()]}
+        ),
+    ).props(el_props).classes(el_classes)
+
 
 def create_ui_element(key: str, value: Any, parent_dict: Dict[str, Any]) -> None:
     """Create a horizontal key:value UI pair with top-aligned label using NiceGUI.
@@ -23,9 +39,6 @@ def create_ui_element(key: str, value: Any, parent_dict: Dict[str, Any]) -> None
         if tooltip_text:
             label_element.tooltip(tooltip_text)
 
-        el_classes = "flex-grow min-w-0"
-        el_props = "dense outlined"
-
         if value is None:
             ui.label("None").classes(el_classes)
 
@@ -33,16 +46,7 @@ def create_ui_element(key: str, value: Any, parent_dict: Dict[str, Any]) -> None
             ui.checkbox().bind_value(parent_dict, key).classes(el_classes)
 
         elif isinstance(value, list):
-            # Handle lists with proper filtering of empty lines
-            ui.textarea(
-                value="\n".join(map(str, value)),
-                placeholder="Введите значения, каждое с новой строки",
-            ).on(
-                "change",
-                lambda e, k=key: parent_dict.update(
-                    {k: [line for line in e.value.splitlines() if line.strip()]}
-                ),
-            ).props(el_props).classes(el_classes)
+            create_ui_list(key, value, parent_dict)
 
         elif isinstance(value, int):
             ui.number(value=value, min=0).bind_value(parent_dict, key).props(

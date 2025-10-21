@@ -13,7 +13,7 @@ search_filter_state = {"query": "", "type_filter": "all"}
 search_debounce_timer = None
 
 
-async def debounced_search_update(rebuild_func: Callable, delay: float = 0.3) -> None:
+async def debounced_search_update(rebuild_func: Callable, delay: float = 1.0) -> None:
     """Debounced search update to reduce UI binding overhead."""
     global search_debounce_timer
 
