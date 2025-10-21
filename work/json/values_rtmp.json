@@ -1,8 +1,8 @@
 {
-    "rtmp": false,
-    "rtmpAddress": ":1935",
-    "rtmpEncryption": "no",
-    "rtmpsAddress": ":1936",
-    "rtmpServerKey": "server.key",
-    "rtmpServerCert": "server.crt"
+  "rtmp": false,
+  "rtmpAddress": ":1935",
+  "rtmpEncryption": "no",
+  "rtmpsAddress": ":1936",
+  "rtmpServerKey": "server.key",
+  "rtmpServerCert": "server.crt"
 }

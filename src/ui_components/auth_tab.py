@@ -25,35 +25,50 @@ def build_auth_tab(container: ui.element, data: Dict[str, Any]):
 
             for i, user_config in enumerate(users):
                 user_label = user_config.get("user", f"User {i + 1}")
-                with ui.expansion(user_label, icon="person").classes("w-full mb-2 border rounded-lg"):
+                with ui.expansion(user_label, icon="person").classes(
+                    "w-full mb-2 border rounded-lg"
+                ):
                     # --- User and Password ---
                     with ui.row().classes("w-full gap-4 p-2"):
-                        ui.input(label="User").bind_value(user_config, "user").classes("flex-1").on(
-                            "change", lambda e, u=user_config: u.update({"user": e.value})
+                        ui.input(label="User").bind_value(user_config, "user").classes(
+                            "flex-1"
+                        ).on(
+                            "change",
+                            lambda e, u=user_config: u.update({"user": e.value}),
                         )
-                        ui.input(label="Password", password=True, password_toggle_button=True).bind_value(
-                            user_config, "pass"
-                        ).classes("flex-1")
+                        ui.input(
+                            label="Password", password=True, password_toggle_button=True
+                        ).bind_value(user_config, "pass").classes("flex-1")
 
                     # --- IPs ---
                     ui.label("IPs").classes("text-sm font-medium px-2")
                     ips_str = "\n".join(user_config.get("ips", []))
-                    ui.textarea(value=ips_str, placeholder="One IP or CIDR per line").on(
+                    ui.textarea(
+                        value=ips_str, placeholder="One IP or CIDR per line"
+                    ).on(
                         "change",
                         lambda e, u=user_config: u.update(
-                            {"ips": [line for line in e.value.splitlines() if line.strip()]}
+                            {
+                                "ips": [
+                                    line
+                                    for line in e.value.splitlines()
+                                    if line.strip()
+                                ]
+                            }
                         ),
                     ).props("outlined dense").classes("w-full px-2")
 
                     # --- Permissions ---
-                    ui.label("Permissions (JSON format)").classes("text-sm font-medium px-2")
+                    ui.label("Permissions (JSON format)").classes(
+                        "text-sm font-medium px-2"
+                    )
                     try:
                         permissions_str = json.dumps(
                             user_config.get("permissions", []), indent=2
                         )
                     except TypeError:
                         permissions_str = "[]"
-                    
+
                     ui.textarea(value=permissions_str).on(
                         "change",
                         lambda e, u=user_config: u.update(

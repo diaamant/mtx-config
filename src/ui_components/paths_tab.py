@@ -220,9 +220,9 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
                                         on_click=lambda n=stream_name: delete_stream_dialog(
                                             n
                                         ),
-                                    ).props(
-                                        "flat dense color=negative"
-                                    ).tooltip("Удалить")
+                                    ).props("flat dense color=negative").tooltip(
+                                        "Удалить"
+                                    )
 
                             ui.separator()
                             # Editable configuration fields
@@ -263,7 +263,8 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
         # Toolbar
         with ui.row().classes("w-full items-center gap-2 mb-4"):
             ui.input(
-                placeholder="Поиск потоков...", on_change=lambda e: search_state.set_query(e.value)
+                placeholder="Поиск потоков...",
+                on_change=lambda e: search_state.set_query(e.value),
             ).props("outlined dense").classes("flex-grow")
             ui.select(
                 ["all", "Source", "RunOnDemand"],
@@ -278,8 +279,53 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
                 color="positive",
             )
 
-        # Statistics cards (can be removed or kept as is)
-        # ...
+        # --- Bulk Credential Replacement ---
+        with ui.card().classes("w-full p-4 mb-4"):
+            ui.label("Замена учетных данных в 'runOnDemand'").classes(
+                "text-md font-semibold"
+            )
+            with ui.row().classes("w-full items-center gap-2"):
+                old_creds = (
+                    ui.input(placeholder="Старые user:pass")
+                    .props("outlined dense")
+                    .classes("flex-1")
+                )
+                new_creds = (
+                    ui.input(placeholder="Новые user:pass")
+                    .props("outlined dense")
+                    .classes("flex-1")
+                )
+
+                def perform_replacement():
+                    old = old_creds.value
+                    new = new_creds.value
+                    if not old or not new:
+                        ui.notify("Оба поля должны быть заполнены!", color="negative")
+                        return
+
+                    count = 0
+                    paths_data = data.get("paths.json", {})
+                    for config in paths_data.values():
+                        if "runOnDemand" in config and old in config["runOnDemand"]:
+                            config["runOnDemand"] = config["runOnDemand"].replace(
+                                old, new
+                            )
+                            count += 1
+
+                    if count > 0:
+                        ui.notify(
+                            f"Замена произведена в {count} потоках.", color="positive"
+                        )
+                        rebuild_streams_list()
+                    else:
+                        ui.notify("Совпадений не найдено.", color="info")
+
+                ui.button(
+                    "Заменить",
+                    on_click=perform_replacement,
+                    icon="find_replace",
+                    color="primary",
+                )
 
         # Streams list container
         streams_container = ui.column().classes("w-full")

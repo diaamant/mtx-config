@@ -1,4 +1,1 @@
-paths:
-  test_path:
-    source: rtsp://localhost
 logLevel: info
