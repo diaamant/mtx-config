@@ -7,6 +7,28 @@ el_classes = "flex-grow min-w-0"
 el_props = "dense outlined"
 
 
+def create_ui_checkbox(key: str, value: Any, parent_dict: Dict[str, Any]):
+    ui.checkbox().bind_value(parent_dict, key).classes(el_classes)
+
+
+def create_ui_int(key: str, value: Any, parent_dict: Dict[str, Any]):
+    ui.number(value=value, min=0).bind_value(parent_dict, key).props(el_props).classes(
+        el_classes
+    )
+
+
+def create_ui_str(key: str, value: Any, parent_dict: Dict[str, Any]):
+    # Use textarea for long strings
+    if len(value) > 100:
+        ui.textarea(value=value, placeholder=f"Введите {key}").bind_value(
+            parent_dict, key
+        ).props(el_props).classes(el_classes)
+    else:
+        ui.input(value=value, placeholder=f"Введите {key}").bind_value(
+            parent_dict, key
+        ).props(el_props).classes(el_classes)
+
+
 def create_ui_list(key: str, value: Any, parent_dict: Dict[str, Any]):
     # Handle lists with proper filtering of empty lines
     ui.textarea(
@@ -41,28 +63,14 @@ def create_ui_element(key: str, value: Any, parent_dict: Dict[str, Any]) -> None
 
         if value is None:
             ui.label("None").classes(el_classes)
-
         elif isinstance(value, bool):
-            ui.checkbox().bind_value(parent_dict, key).classes(el_classes)
-
+            create_ui_checkbox(key, value, parent_dict)
         elif isinstance(value, list):
             create_ui_list(key, value, parent_dict)
-
         elif isinstance(value, int):
-            ui.number(value=value, min=0).bind_value(parent_dict, key).props(
-                el_props
-            ).classes(el_classes)
-
+            create_ui_int(key, value, parent_dict)
         elif isinstance(value, str):
-            # Use textarea for long strings
-            if len(value) > 100:
-                ui.textarea(value=value, placeholder=f"Введите {key}").bind_value(
-                    parent_dict, key
-                ).props(el_props).classes(el_classes)
-            else:
-                ui.input(value=value, placeholder=f"Введите {key}").bind_value(
-                    parent_dict, key
-                ).props(el_props).classes(el_classes)
+            create_ui_str(key, value, parent_dict)
 
         elif isinstance(value, dict):
             # Handle dictionaries as JSON

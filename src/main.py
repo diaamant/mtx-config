@@ -39,18 +39,29 @@ def save_and_notify() -> None:
 
 
 def validate_config() -> None:
-    """Validate current configuration and show results."""
+    """Validate current configuration and show results in a dialog."""
     errors = config_manager.validate_all()
 
-    if errors:
-        error_count = sum(len(e) for e in errors.values())
-        ui.notify(f"Ошибки валидации: {error_count}", color="negative", timeout=5000)
-        for location, errs in errors.items():
-            for err in errs:
-                logger.error(f"Validation error in {location}: {err}")
-    else:
+    if not errors:
         ui.notify("Валидация пройдена успешно!", color="positive")
         logger.info("Validation passed")
+        return
+
+    with ui.dialog() as dialog, ui.card().classes("w-full max-w-2xl"):
+        ui.label("Ошибки валидации").classes("text-h6 text-negative mb-4")
+        error_count = sum(len(e) for e in errors.values())
+        ui.label(f"Найдено ошибок: {error_count}").classes("mb-4")
+
+        with ui.scroll_area().classes("h-64 border p-2"):
+            for location, errs in errors.items():
+                with ui.expansion(location, icon="error", value=True).classes("w-full"):
+                    for err in errs:
+                        ui.label(err).classes("text-sm text-red-800 ml-4")
+        
+        with ui.row().classes("w-full justify-end mt-4"):
+            ui.button("Закрыть", on_click=dialog.close).props("flat")
+
+    dialog.open()
 
 
 # --- Main UI Setup ---

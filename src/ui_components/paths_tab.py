@@ -237,32 +237,10 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
 
                     ui.separator()
 
-                    # Configuration fields - use optimized display
-                    with ui.column().classes("w-full gap-2 p-2"):
-                        # Group fields to reduce individual bindings
-                        fields_per_group = 5
-                        for i in range(0, len(stream_config), fields_per_group):
-                            with ui.row().classes("w-full gap-2"):
-                                for key in list(stream_config.keys())[
-                                    i : i + fields_per_group
-                                ]:
-                                    value = stream_config[key]
-                                    with ui.column().classes("flex-1"):
-                                        ui.label(f"{key}:").classes(
-                                            "text-sm font-medium"
-                                        )
-                                        if isinstance(value, (str, int, bool)):
-                                            ui.label(str(value)).classes(
-                                                "text-sm text-grey-7"
-                                            )
-                                        elif isinstance(value, (list, dict)):
-                                            ui.label(
-                                                f"[{type(value).__name__}]"
-                                            ).classes("text-sm text-grey-5")
-                                        else:
-                                            ui.label(str(value)).classes(
-                                                "text-sm text-grey-7"
-                                            )
+                    # Configuration fields - make them editable
+                    with ui.column().classes("w-full gap-1 p-2"):
+                        for key, value in stream_config.items():
+                            create_ui_element(key, value, stream_config)
 
     def delete_stream_dialog(name: str) -> None:
         """Show delete confirmation dialog."""
