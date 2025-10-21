@@ -42,6 +42,14 @@ def create_ui_list(key: str, value: Any, parent_dict: Dict[str, Any]):
     ).props(el_props).classes(el_classes)
 
 
+def create_ui_dict(key: str, value: Any, parent_dict: Dict[str, Any]):
+    # Handle dictionaries recursively
+    with ui.expansion(key, icon="schema").classes("w-full border rounded-lg"):
+        with ui.column().classes("w-full p-2"):
+            for sub_key, sub_value in value.items():
+                create_ui_element(sub_key, sub_value, value)
+
+
 def create_ui_element(key: str, value: Any, parent_dict: Dict[str, Any]) -> None:
     """Create a horizontal key:value UI pair with top-aligned label using NiceGUI.
 
@@ -71,20 +79,8 @@ def create_ui_element(key: str, value: Any, parent_dict: Dict[str, Any]) -> None
             create_ui_int(key, value, parent_dict)
         elif isinstance(value, str):
             create_ui_str(key, value, parent_dict)
-
         elif isinstance(value, dict):
-            # Handle dictionaries as JSON
-            import json
-
-            ui.textarea(
-                value=json.dumps(value, indent=2, ensure_ascii=False),
-                placeholder=f"Введите {key} (JSON формат)",
-            ).on(
-                "change",
-                lambda e, k=key: parent_dict.update(
-                    {k: json.loads(e.value) if e.value.strip() else {}}
-                ),
-            ).props(el_props).classes(el_classes)
+            create_ui_dict(key, value, parent_dict)
 
 
 def get_parameter_tooltip(param_name: str) -> str:

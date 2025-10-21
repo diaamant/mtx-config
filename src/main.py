@@ -3,6 +3,7 @@ from nicegui import ui
 from src.core.config import get_settings
 from src.core.log import logger
 from src.mtx_manager import MtxConfigManager
+from ui_components.auth_tab import build_auth_tab
 from ui_components.generic_tab import build_generic_tab
 from ui_components.paths_tab import build_paths_tab
 from ui_components.preview_tab import build_preview_tab
@@ -57,7 +58,7 @@ def validate_config() -> None:
                 with ui.expansion(location, icon="error", value=True).classes("w-full"):
                     for err in errs:
                         ui.label(err).classes("text-sm text-red-800 ml-4")
-        
+
         with ui.row().classes("w-full justify-end mt-4"):
             ui.button("Закрыть", on_click=dialog.close).props("flat")
 
@@ -108,6 +109,10 @@ with ui.tab_panels(tabs, value=list(TAB_NAMES.values())[0]).classes("w-full"):
                 with ui.tab_panel(tab_name):
                     paths_tab_content = ui.column().classes("w-full")
                     build_paths_tab(paths_tab_content, config_manager.data)
+            elif filename == "auth.json":
+                with ui.tab_panel(tab_name):
+                    auth_tab_content = ui.column().classes("w-full")
+                    build_auth_tab(auth_tab_content, config_manager.data)
             else:
                 build_generic_tab(tab_name, filename, config_manager.data)
 
