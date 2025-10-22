@@ -7,6 +7,7 @@ from ui_components.auth_tab import build_auth_tab
 from ui_components.generic_tab import build_generic_tab
 from ui_components.paths_tab import build_paths_tab
 from ui_components.preview_tab import build_preview_tab
+from ui_components.rtsp_tab import build_rtsp_tab
 
 # Tab names mapping
 TAB_NAMES = {
@@ -113,6 +114,10 @@ with ui.tab_panels(tabs, value=list(TAB_NAMES.values())[0]).classes("w-full"):
                 with ui.tab_panel(tab_name):
                     auth_tab_content = ui.column().classes("w-full")
                     build_auth_tab(auth_tab_content, config_manager.data)
+            elif filename == "values_rtsp.json":
+                with ui.tab_panel(tab_name):
+                    rtsp_tab_content = ui.column().classes("w-full")
+                    build_rtsp_tab(rtsp_tab_content, config_manager.data)
             else:
                 build_generic_tab(tab_name, filename, config_manager.data)
 

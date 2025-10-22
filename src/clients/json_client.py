@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Dict, Any
 
 from src.clients.abc_conf_client import ConfigClient
-from src.core.config import get_settings
+from src.core.config import get_settings as get_settings_func
 from src.core.log import logger
 
 
@@ -15,7 +15,7 @@ class JSONClient(ConfigClient):
     """
 
     def __init__(self):
-        self.json_dir: Path = get_settings().MTX_JSON_DIR
+        self.json_dir: Path = get_settings_func().MTX_JSON_DIR
 
     def load_config(self) -> Dict[str, Any]:
         """

@@ -29,7 +29,7 @@ class TestJSONClient:
 
         return json_dir
 
-    @patch("src.clients.config_clients.get_settings")
+    @patch("src.clients.json_client.get_settings_func")
     def test_load_config_success(self, mock_get_settings, temp_json_dir):
         """Test successful loading of JSON files."""
         mock_settings = MagicMock()
@@ -48,7 +48,7 @@ class TestJSONClient:
         }
         assert data["values_app.json"] == {"logLevel": "info"}
 
-    @patch("src.clients.config_clients.get_settings")
+    @patch("src.clients.json_client.get_settings_func")
     def test_load_config_nonexistent_dir(self, mock_get_settings):
         """Test loading when directory doesn't exist."""
         mock_settings = MagicMock()
@@ -60,7 +60,7 @@ class TestJSONClient:
 
         assert data == {}
 
-    @patch("src.clients.config_clients.get_settings")
+    @patch("src.clients.json_client.get_settings_func")
     def test_load_config_empty_file(self, mock_get_settings, temp_json_dir):
         """Test loading with empty JSON file."""
         mock_settings = MagicMock()
@@ -73,7 +73,7 @@ class TestJSONClient:
         # Empty file should not be included
         assert "empty.json" not in data
 
-    @patch("src.clients.config_clients.get_settings")
+    @patch("src.clients.json_client.get_settings_func")
     def test_save_config_success(self, mock_get_settings, temp_json_dir):
         """Test successful saving of JSON files."""
         mock_settings = MagicMock()
@@ -129,8 +129,9 @@ class TestYAMLClient:
 
         return work_dir, json_dir, yaml_file, yaml_backup
 
-    @patch("src.clients.config_clients.get_settings")
-    def test_save_config_success(self, mock_get_settings, temp_work_dir):
+    @patch("src.clients.yaml_client.get_settings_func")
+    @patch("src.clients.yaml_client.JSONClient")
+    def test_save_config_success(self, mock_json_client_class, mock_get_settings, temp_work_dir):
         """Test successful YAML saving."""
         work_dir, json_dir, yaml_file, yaml_backup = temp_work_dir
 
@@ -139,6 +140,10 @@ class TestYAMLClient:
         mock_settings.MTX_YAML_FILE = yaml_file
         mock_settings.MTX_YAML_BACKUP_FILE = yaml_backup
         mock_get_settings.return_value = mock_settings
+
+        # Mock JSONClient
+        mock_json_client = MagicMock()
+        mock_json_client_class.return_value = mock_json_client
 
         client = YAMLClient()
         test_data = {
@@ -152,7 +157,7 @@ class TestYAMLClient:
 
         # Check backup was created
         assert yaml_backup.exists()
-        assert "original backup" in yaml_backup.read_text()
+        assert "original yaml content" in yaml_backup.read_text()
 
         # Check YAML file was updated
         assert yaml_file.exists()
@@ -161,7 +166,7 @@ class TestYAMLClient:
         assert "paths:" in yaml_content
         assert "logLevel" in yaml_content
 
-    @patch("src.clients.config_clients.get_settings")
+    @patch("src.clients.yaml_client.get_settings_func")
     def test_save_config_disabled_sections(self, mock_get_settings, temp_work_dir):
         """Test saving with disabled sections."""
         work_dir, json_dir, yaml_file, yaml_backup = temp_work_dir
@@ -186,7 +191,7 @@ class TestYAMLClient:
         assert "stream1" not in yaml_content  # Disabled section
         assert "logLevel" in yaml_content  # Enabled section
 
-    @patch("src.clients.config_clients.get_settings")
+    @patch("src.clients.yaml_client.get_settings_func")
     def test_load_config_not_implemented(self, mock_get_settings):
         """Test that load_config raises NotImplementedError."""
         mock_settings = MagicMock()

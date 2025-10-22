@@ -26,14 +26,25 @@ def temp_work_dir(tmp_path):
     return work_dir, json_dir, yaml_file
 
 
-@patch("src.clients.config_clients.get_settings")
-def test_load_data_creates_enabled_flags(mock_get_settings, temp_work_dir):
+@patch("src.clients.yaml_client.get_settings_func")
+@patch("src.clients.json_client.get_settings_func")
+@patch("src.clients.yaml_client.JSONClient")
+def test_load_data_creates_enabled_flags(mock_json_client_class, mock_json_get_settings, mock_yaml_get_settings, temp_work_dir):
     """Tests that load_data correctly loads json files and adds the '_enabled' flag."""
     work_dir, json_dir, yaml_file = temp_work_dir
 
+    # Clear the client cache
+    from src.clients.config_clients import get_config_client
+    get_config_client.cache_clear()
+
     mock_settings = MagicMock()
     mock_settings.MTX_JSON_DIR = json_dir
-    mock_get_settings.return_value = mock_settings
+    mock_json_get_settings.return_value = mock_settings
+    mock_yaml_get_settings.return_value = mock_settings
+
+    # Mock JSONClient
+    mock_json_client = MagicMock()
+    mock_json_client_class.return_value = mock_json_client
 
     # Use JSONClient instead of old load_data function
     json_client = get_config_client("JSON")
@@ -48,16 +59,37 @@ def test_load_data_creates_enabled_flags(mock_get_settings, temp_work_dir):
     assert data["values_app.json_enabled"] is True
 
 
-@patch("src.clients.config_clients.get_settings")
-def test_save_data_creates_yaml_and_backup(mock_get_settings, temp_work_dir):
+@patch("src.clients.yaml_client.get_settings_func")
+@patch("src.clients.json_client.get_settings_func")
+@patch("src.clients.yaml_client.JSONClient")
+def test_save_data_creates_yaml_and_backup(mock_json_client_class, mock_json_get_settings, mock_yaml_get_settings, temp_work_dir):
     """Tests that save_data correctly creates the YAML file and a backup."""
     work_dir, json_dir, yaml_file = temp_work_dir
+
+    # Clear the client cache
+    from src.clients.config_clients import get_config_client
+    get_config_client.cache_clear()
 
     mock_settings = MagicMock()
     mock_settings.MTX_JSON_DIR = json_dir
     mock_settings.MTX_YAML_FILE = yaml_file
     mock_settings.MTX_YAML_BACKUP_FILE = yaml_file.with_suffix(".yml.bak")
-    mock_get_settings.return_value = mock_settings
+    mock_json_get_settings.return_value = mock_settings
+    mock_yaml_get_settings.return_value = mock_settings
+
+    # Mock JSONClient
+    mock_json_client = MagicMock()
+    mock_json_client_class.return_value = mock_json_client
+    mock_json_client.save_config.return_value = None  # Do nothing for JSON save
+
+    # Create test data
+    data = {
+        "paths.json": {"test_path": {"source": "rtsp://localhost"}},
+        "values_app.json": {"logLevel": "info"},
+        "paths.json_enabled": True,
+        "values_app.json_enabled": True,
+    }
+    mock_json_client.load_config.return_value = data  # Return test data
 
     # Load initial data using JSONClient
     json_client = get_config_client("JSON")
@@ -79,16 +111,37 @@ def test_save_data_creates_yaml_and_backup(mock_get_settings, temp_work_dir):
     assert "original_content" in backup_file.read_text()
 
 
-@patch("src.clients.config_clients.get_settings")
-def test_save_data_skips_disabled_sections(mock_get_settings, temp_work_dir):
+@patch("src.clients.yaml_client.get_settings_func")
+@patch("src.clients.json_client.get_settings_func")
+@patch("src.clients.yaml_client.JSONClient")
+def test_save_data_skips_disabled_sections(mock_json_client_class, mock_json_get_settings, mock_yaml_get_settings, temp_work_dir):
     """Tests that save_data correctly skips sections that are disabled."""
     work_dir, json_dir, yaml_file = temp_work_dir
+
+    # Clear the client cache
+    from src.clients.config_clients import get_config_client
+    get_config_client.cache_clear()
 
     mock_settings = MagicMock()
     mock_settings.MTX_JSON_DIR = json_dir
     mock_settings.MTX_YAML_FILE = yaml_file
     mock_settings.MTX_YAML_BACKUP_FILE = yaml_file.with_suffix(".yml.bak")
-    mock_get_settings.return_value = mock_settings
+    mock_json_get_settings.return_value = mock_settings
+    mock_yaml_get_settings.return_value = mock_settings
+
+    # Mock JSONClient
+    mock_json_client = MagicMock()
+    mock_json_client_class.return_value = mock_json_client
+    mock_json_client.save_config.return_value = None  # Do nothing for JSON save
+
+    # Create test data
+    data = {
+        "paths.json": {"test_path": {"source": "rtsp://localhost"}},
+        "values_app.json": {"logLevel": "info"},
+        "paths.json_enabled": True,
+        "values_app.json_enabled": True,
+    }
+    mock_json_client.load_config.return_value = data  # Return test data
 
     # Load data and disable a section
     json_client = get_config_client("JSON")

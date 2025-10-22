@@ -6,7 +6,7 @@ import yaml
 
 from src.clients.abc_conf_client import ConfigClient
 from src.clients.json_client import JSONClient
-from src.core.config import get_settings
+from src.core.config import get_settings as get_settings_func
 from src.core.log import logger
 
 
@@ -18,7 +18,7 @@ class YAMLClient(ConfigClient):
     """
 
     def __init__(self):
-        settings = get_settings()
+        settings = get_settings_func()
         self.yaml_file: Path = settings.MTX_YAML_FILE
         self.yaml_backup_file: Path = settings.MTX_YAML_BACKUP_FILE
         # Этот клиент также должен уметь работать с JSON-источниками
