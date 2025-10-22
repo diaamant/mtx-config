@@ -46,26 +46,30 @@
     curl -LsSf https://astral.sh/uv/install.sh | sh
     source $HOME/.cargo/env
     ```
-
-
-2.  **Создание и активация виртуальной среды:**
+3.  **Создание и активация виртуальной среды:**
     ```bash
     uv venv
     source .venv/bin/activate
     ```
 
-3.  **Установка зависимостей с помощью `uv`:**
+4.  **Установка зависимостей с помощью `uv`:**
     ```bash
     uv pip sync requirements.txt --link-mode=copy
     ```
+    
+5.  **Обновление зависимостей с помощью `uv`:**
+    ```bash
+    uv self update
+    uv pip install --upgrade nicegui uvicorn
+    ```
 
-4.  **Настройка переменные окружения (опционально):**
+5.  **Настройка переменные окружения (опционально):**
     ```bash
     cp .env.template .env
     # Отредактируйте .env при необходимости
     ```
 
-5.  **Запуск приложение:**
+6.  **Запуск приложение:**
     ```bash
     cd /mnt/data/storeSoft/projPySample/mtx-config
     source .venv/bin/activate
