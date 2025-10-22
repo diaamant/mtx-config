@@ -132,5 +132,5 @@ ui.run(
     port=settings.app_port,
     host=settings.app_host,
     title="Mediamtx Configuration Editor",
-    # reload=False,
+    reload=False,
 )

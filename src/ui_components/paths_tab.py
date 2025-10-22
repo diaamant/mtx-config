@@ -213,7 +213,7 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
                         icon_name = default_icon
 
                         if stream_type == "Source":
-                            icon_name = "duo" # "live_tv"
+                            icon_name = "duo"  # "live_tv"
                         else:
                             run_on_demand = stream_config.get("runOnDemand", {})
                             has_audio = "audio" in run_on_demand
@@ -234,9 +234,6 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
 
                             if lookup_key:
                                 icon_name = map_av[lookup_key]
-
-                        if stream_name == "vl264":
-                            print(icon_name)
 
                         with ui.expansion(stream_name, icon=icon_name).classes(
                             "w-full mb-0"
