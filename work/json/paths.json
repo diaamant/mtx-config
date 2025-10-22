@@ -37,13 +37,8 @@
     "rtspTransport": "tcp",
     "sourceOnDemand": true
   },
-  "vgh0": {
-    "runOnDemand": "gst-launch-1.0 rtspsrc location=\"rtsp://root:ipc@192.168.1.123:554/stream=0\" name=src01 ! rtpjitterbuffer latency=100 ! queue ! rtph265depay ! h265parse ! rtspclientsink location=rtsp://unit058:fMCGdnC0FUSS@localhost:8554/vgh0",
-    "runOnDemandRestart": true,
-    "runOnDemandStartTimeout": "5s"
-  },
   "vgh": {
-    "runOnDemand": "gst-launch-1.0 rtspsrc location=\"rtsp://root:ipc@192.168.1.123:554/stream=0\" name=src01 ! rtpjitterbuffer latency=100 ! queue ! rtph265depay ! h265parse ! rtspclientsink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH",
+    "runOnDemand": "gst-launch-1.0 rtspsrc name=rtspsrc01 location=\"rtsp://root:ipc@192.168.1.123:554/stream=0\" rtspsrc01. ! application/x-rtp,media=video ! rtpjitterbuffer latency=100 ! queue ! parsebin ! queue ! sink. rtspclientsink name=sink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH",
     "runOnDemandRestart": true,
     "runOnDemandStartTimeout": "5s"
   },
@@ -80,5 +75,25 @@
     "runOnDemandRestart": true,
     "runOnDemandStartTimeout": "7s",
     "runOnDemandCloseAfter": "1s"
+  },
+  "vl264": {
+    "runOnDemand": "gst-launch-1.0 rtspsrc name=rtspsrc01 location=\"rtsp://root:ipc@192.168.1.123:554/stream=1\" rtspsrc01. ! application/x-rtp,media=video ! rtpjitterbuffer latency=100 ! queue ! rtph264depay ! h264parse ! rtspclientsink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH",
+    "runOnDemandRestart": true,
+    "runOnDemandStartTimeout": "5s"
+  },
+  "vh265": {
+    "runOnDemand": "gst-launch-1.0 rtspsrc name=rtspsrc01 location=\"rtsp://root:ipc@192.168.1.123:554/stream=0\" rtspsrc01. ! application/x-rtp,media=video ! rtpjitterbuffer latency=100 ! queue ! rtph265depay ! h265parse ! rtspclientsink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH",
+    "runOnDemandRestart": true,
+    "runOnDemandStartTimeout": "5s"
+  },
+  "vh264": {
+    "runOnDemand": "gst-launch-1.0 rtspsrc name=rtspsrc01 location=\"rtsp://root:ipc@192.168.1.123:554/stream=0\" rtspsrc01. ! application/x-rtp,media=video ! rtpjitterbuffer latency=100 ! queue ! rtph264depay ! h264parse ! rtspclientsink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH",
+    "runOnDemandRestart": true,
+    "runOnDemandStartTimeout": "5s"
+  },
+  "vl265": {
+    "runOnDemand": "gst-launch-1.0 rtspsrc name=rtspsrc01 location=\"rtsp://root:ipc@192.168.1.123:554/stream=1\" rtspsrc01. ! application/x-rtp,media=video ! rtpjitterbuffer latency=100 ! queue ! rtph265depay ! h265parse ! rtspclientsink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH",
+    "runOnDemandRestart": true,
+    "runOnDemandStartTimeout": "5s"
   }
 }

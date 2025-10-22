@@ -5,6 +5,16 @@ import asyncio
 from nicegui import ui
 from .ui_utils import create_ui_element
 
+map_av = {
+    "audio": "mic",  # 1: Только аудио
+    "video": "videocam",  # 10: Только Generic Video
+    "duo": "perm_camera_mic",  # 11: Audio + Generic Video (original icon)
+    "h264_only": "videocam",  # 20: Только H.264
+    "h264_audio": "duo",  # 21: H.264 + Audio (Визуально отличается)
+    "h265_only": "hevc",  # 30: Только H.265
+    "h265_audio": "duo",  # 31: H.265 + Audio (Визуально отличается)
+}
+
 
 class SearchState:
     """Encapsulates search and filter state for the paths tab."""
@@ -15,7 +25,7 @@ class SearchState:
         self.debounce_timer: Optional[asyncio.Task] = None
         self.rebuild_func = rebuild_func
 
-    async def debounced_update(self, delay: float = 0.5) -> None:
+    async def debounced_update(self, delay: float = 1.0) -> None:
         """Debounce UI updates to reduce overhead."""
         if self.debounce_timer:
             self.debounce_timer.cancel()
@@ -39,7 +49,7 @@ class SearchState:
 def add_new_stream(data: Dict[str, Any], container, rebuild_func: Callable) -> None:
     """Dialog to add a new stream with live update."""
     with ui.dialog() as dialog, ui.card():
-        ui.label("Добавить новый поток").classes("text-h6 mb-4")
+        ui.label("Добавить новый поток").classes("text-h6 mb-0")
 
         stream_name = ui.input(
             "Имя потока (Stream Name)", placeholder="например: camera01"
@@ -96,7 +106,7 @@ def clone_stream(
 ) -> None:
     """Dialog to clone an existing stream."""
     with ui.dialog() as dialog, ui.card():
-        ui.label(f"Клонировать поток: {source_name}").classes("text-h6 mb-4")
+        ui.label(f"Клонировать поток: {source_name}").classes("text-h6 mb-0")
 
         new_name = ui.input(
             "Новое имя потока",
@@ -192,16 +202,44 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
                 if not streams:
                     continue
 
-                with ui.column().classes("w-full mb-4"):
+                with ui.column().classes("w-full mb-0"):
                     ui.label(f"{stream_type} Streams ({len(streams)})").classes(
-                        "text-lg font-semibold text-primary border-b-2 border-primary pb-1"
+                        "text-md font-semibold text-primary border-b border-primary pb-0.5"
                     )
+
+                    default_icon = "play_arrow"
+
                     for stream_name, stream_config in sorted(streams.items()):
-                        icon_name = (
-                            "videocam" if stream_type == "Source" else "play_arrow"
-                        )
+                        icon_name = default_icon
+
+                        if stream_type == "Source":
+                            icon_name = "duo" # "live_tv"
+                        else:
+                            run_on_demand = stream_config.get("runOnDemand", {})
+                            has_audio = "audio" in run_on_demand
+                            has_h264 = "h264" in run_on_demand
+                            has_h265 = "h265" in run_on_demand
+                            has_generic_video = "video" in run_on_demand
+
+                            lookup_key = None
+
+                            if has_h264:
+                                lookup_key = "h264_audio" if has_audio else "h264_only"
+                            elif has_h265:
+                                lookup_key = "h265_audio" if has_audio else "h265_only"
+                            elif has_generic_video:
+                                lookup_key = "duo" if has_audio else "video"
+                            elif has_audio:
+                                lookup_key = "audio"
+
+                            if lookup_key:
+                                icon_name = map_av[lookup_key]
+
+                        if stream_name == "vl264":
+                            print(icon_name)
+
                         with ui.expansion(stream_name, icon=icon_name).classes(
-                            "w-full mb-2"
+                            "w-full mb-0"
                         ):
                             # Header with actions
                             with ui.row().classes(
@@ -226,7 +264,7 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
 
                             ui.separator()
                             # Editable configuration fields
-                            with ui.column().classes("w-full gap-1 p-2"):
+                            with ui.column().classes("w-full gap-0 p-1"):
                                 for key, value in stream_config.items():
                                     create_ui_element(key, value, stream_config)
 
@@ -241,8 +279,8 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
             dialog.close()
 
         with ui.dialog() as dialog, ui.card():
-            ui.label(f'Удалить поток "{name}"?').classes("text-h6 mb-2")
-            ui.label("Это действие нельзя отменить.").classes("text-grey-7 mb-4")
+            ui.label(f'Удалить поток "{name}"?').classes("text-h6 mb-0")
+            ui.label("Это действие нельзя отменить.").classes("text-grey-7 mb-0")
             with ui.row().classes("w-full justify-end gap-2"):
                 ui.button("Отмена", on_click=dialog.close).props("flat")
                 ui.button(
@@ -261,7 +299,7 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
         ui.separator()
 
         # Toolbar
-        with ui.row().classes("w-full items-center gap-2 mb-4"):
+        with ui.row().classes("w-full items-center gap-2 mb-0"):
             ui.input(
                 placeholder="Поиск потоков...",
                 on_change=lambda e: search_state.set_query(e.value),
@@ -280,7 +318,7 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
             )
 
         # --- Bulk Credential Replacement ---
-        with ui.card().classes("w-full p-4 mb-4"):
+        with ui.card().classes("w-full p-4 mb-0"):
             ui.label("Замена учетных данных в 'runOnDemand'").classes(
                 "text-md font-semibold"
             )

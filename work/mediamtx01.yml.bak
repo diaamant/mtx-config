@@ -1,1 +1,355 @@
+paths:
+  vh:
+    source: rtsp://root:ipc@ipc:554/stream=0
+    rtspTransport: tcp
+    sourceOnDemand: true
+  avh:
+    runOnDemand: gst-launch-1.0 pulsesrc device=alsa_input.usb-0c76_USB_PnP_Audio_Device-00.mono-fallback
+      do-timestamp=true volume=1.0 buffer-time=2000000 ! queue name=audio_source  audio_source.
+      ! audio/x-raw, channels=1, rate=48000 ! queue ! audioconvert ! queue ! audioresample
+      ! audio/x-raw, channels=1, rate=24000 ! queue ! opusenc bandwidth=1104 bitrate=64000
+      bitrate-type=1 inband-fec=FALSE packet-loss-percentage=0 dtx=FALSE ! queue !
+      opusparse ! queue ! sink. urisourcebin uri="rtsp://unit058:fMCGdnC0FUSS@127.0.0.1:$RTSP_PORT/vh"
+      ! queue ! application/x-rtp,media=video ! queue ! parsebin ! queue ! h264parse
+      ! queue ! sink. rtspclientsink name=sink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/avh
+    runOnDemandRestart: true
+    runOnDemandStartTimeout: 9s
+  vl:
+    source: rtsp://root:ipc@ipc:554/stream=1
+    rtspTransport: tcp
+    sourceOnDemand: true
+  avl:
+    runOnDemand: gst-launch-1.0 pulsesrc device=alsa_input.usb-0c76_USB_PnP_Audio_Device-00.mono-fallback
+      do-timestamp=true volume=1.0 buffer-time=2000000 ! queue name=audio_source  audio_source.
+      ! audio/x-raw, channels=1, rate=48000 ! queue ! audioconvert ! queue ! audioresample
+      ! audio/x-raw, channels=1, rate=24000 ! queue ! opusenc bandwidth=1104 bitrate=64000
+      bitrate-type=1 inband-fec=FALSE packet-loss-percentage=0 dtx=FALSE ! queue !
+      opusparse ! queue ! sink. urisourcebin uri="rtsp://unit058:fMCGdnC0FUSS@127.0.0.1:$RTSP_PORT/vl"
+      ! queue ! application/x-rtp,media=video ! queue ! parsebin ! queue ! h264parse
+      ! queue ! sink. rtspclientsink name=sink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/avl
+    runOnReadyRestart: true
+    runOnDemandStartTimeout: 9s
+  ahd01H:
+    source: rtsp://192.168.10.121:554/user=user01&password=user01&channel=1&stream=0.sdp
+    sourceOnDemand: true
+  ahd01L:
+    source: rtsp://192.168.10.121:554/user=user01&password=user01&channel=1&stream=1.sdp
+    sourceOnDemand: true
+  dh01H:
+    source: rtsp://user01:user01@192.168.10.121:554/cam/realmonitor?channel=1&subtype=0
+    rtspTransport: tcp
+    sourceOnDemand: true
+  dh01L:
+    source: rtsp://user01:user01@192.168.10.121:554/cam/realmonitor?channel=1&subtype=1
+    rtspTransport: tcp
+    sourceOnDemand: true
+  vgh:
+    runOnDemand: gst-launch-1.0 rtspsrc name=rtspsrc01 location="rtsp://root:ipc@192.168.1.123:554/stream=0"
+      rtspsrc01. ! application/x-rtp,media=video ! rtpjitterbuffer latency=100 ! queue
+      ! parsebin ! queue ! sink. rtspclientsink name=sink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH
+    runOnDemandRestart: true
+    runOnDemandStartTimeout: 5s
+  vgl:
+    runOnDemand: gst-launch-1.0 rtspsrc name=rtspsrc01 location="rtsp://root:ipc@192.168.1.123:554/stream=1"
+      rtspsrc01. ! application/x-rtp,media=video ! rtpjitterbuffer latency=100 ! queue
+      ! parsebin ! queue ! sink. rtspclientsink name=sink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH
+    runOnDemandRestart: true
+    runOnDemandStartTimeout: 5s
+  opus:
+    runOnDemand: gst-launch-1.0 pulsesrc device="alsa_input.usb-0c76_USB_PnP_Audio_Device-00.mono-fallback"
+      do-timestamp=true volume=1.0 ! audio/x-raw, channels=1, rate=48000 ! queue !
+      audioconvert ! queue ! audioresample ! audio/x-raw, channels=1, rate=24000 !
+      queue ! opusenc audio-type=2048 bandwidth=1104 bitrate=96000 bitrate-type=1
+      inband-fec=FALSE packet-loss-percentage=0 dtx=FALSE ! opusparse ! queue name=mq01
+      ! sink. rtspclientsink name=sink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH
+    runOnDemandRestart: true
+    runOnDemandStartTimeout: 7s
+  snd:
+    runOnDemand: gst-launch-1.0 pulsesrc device="alsa_input.usb-0c76_USB_PnP_Audio_Device-00.mono-fallback"
+      do-timestamp=true volume=1.0 ! audio/x-raw, channels=1, rate=48000 ! queue !
+      audioconvert ! queue ! audioresample ! audio/x-raw, channels=1, rate=24000 !
+      queue ! voaacenc bitrate=32000 ! aacparse ! queue ! sink. rtspclientsink name=sink
+      location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH
+    runOnDemandRestart: true
+    runOnDemandStartTimeout: 7s
+    runOnDemandCloseAfter: 1s
+  snd01:
+    runOnDemand: gst-launch-1.0 pulsesrc device="alsa_input.usb-0c76_USB_PnP_Audio_Device-00.mono-fallback"
+      do-timestamp=true volume=1.0 ! audio/x-raw, channels=1, rate=48000 ! queue !
+      audioconvert ! queue ! audioresample ! audio/x-raw, channels=1, rate=24000 !
+      queue ! voaacenc bitrate=32000 ! aacparse ! queue ! sink. rtspclientsink name=sink
+      location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH
+    runOnDemandRestart: true
+    runOnDemandStartTimeout: 7s
+    runOnDemandCloseAfter: 1s
+  snd02:
+    runOnDemand: gst-launch-1.0 pulsesrc device="alsa_input.usb-0c76_USB_PnP_Audio_Device-00.analog-stereo"
+      do-timestamp=true volume=1.0 ! audio/x-raw, channels=2, rate=48000 ! queue name=queue01a
+      ! audioconvert ! queue name=queue02a ! audioresample ! audio/x-raw, channels=2,
+      rate=24000 ! queue name=queue03a ! voaacenc bitrate=32000 ! aacparse ! queue
+      name=mq01 ! sink. rtspclientsink name=sink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH
+    runOnDemandRestart: true
+    runOnDemandStartTimeout: 5s
+    runOnDemandCloseAfter: 1s
+  snd03:
+    runOnDemand: gst-launch-1.0 pulsesrc device="alsa_input.usb-KTMicro_BY-LM40_214b206000000178-00.mono-fallback"
+      do-timestamp=true volume=1.0 ! audio/x-raw, channels=1, rate=48000 ! queue name=queue01a
+      ! audioconvert ! queue name=queue02a ! audioresample ! audio/x-raw, channels=1,
+      rate=24000 ! queue name=queue03a ! voaacenc bitrate=32000 ! aacparse ! queue
+      name=mq01 ! sink. rtspclientsink name=sink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH
+    runOnDemandRestart: true
+    runOnDemandStartTimeout: 7s
+    runOnDemandCloseAfter: 1s
+  vl264:
+    runOnDemand: gst-launch-1.0 rtspsrc name=rtspsrc01 location="rtsp://root:ipc@192.168.1.123:554/stream=1"
+      rtspsrc01. ! application/x-rtp,media=video ! rtpjitterbuffer latency=100 ! queue
+      ! rtph264depay ! h264parse ! rtspclientsink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH
+    runOnDemandRestart: true
+    runOnDemandStartTimeout: 5s
+  vh265:
+    runOnDemand: gst-launch-1.0 rtspsrc name=rtspsrc01 location="rtsp://root:ipc@192.168.1.123:554/stream=0"
+      rtspsrc01. ! application/x-rtp,media=video ! rtpjitterbuffer latency=100 ! queue
+      ! rtph265depay ! h265parse ! rtspclientsink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH
+    runOnDemandRestart: true
+    runOnDemandStartTimeout: 5s
+  vh264:
+    runOnDemand: gst-launch-1.0 rtspsrc name=rtspsrc01 location="rtsp://root:ipc@192.168.1.123:554/stream=0"
+      rtspsrc01. ! application/x-rtp,media=video ! rtpjitterbuffer latency=100 ! queue
+      ! rtph264depay ! h264parse ! rtspclientsink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH
+    runOnDemandRestart: true
+    runOnDemandStartTimeout: 5s
+  vl265:
+    runOnDemand: gst-launch-1.0 rtspsrc name=rtspsrc01 location="rtsp://root:ipc@192.168.1.123:554/stream=1"
+      rtspsrc01. ! application/x-rtp,media=video ! rtpjitterbuffer latency=100 ! queue
+      ! rtph265depay ! h265parse ! rtspclientsink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH
+    runOnDemandRestart: true
+    runOnDemandStartTimeout: 5s
+authMethod: internal
+authInternalUsers:
+- user: unit058
+  pass: fMCGdnC0FUSS
+  ips:
+  - 127.0.0.1
+  - ::1
+  - 10.23.254.22
+  - 192.168.1.0/24
+  - 10.8.0.0/24
+  - 10.8.1.0/24
+  - 192.168.8.0/24
+  - 192.168.137.0/24
+  permissions:
+  - action: publish
+    path: null
+  - action: read
+    path: null
+  - action: playback
+    path: null
+- user: admin01
+  pass: admin01
+  ips:
+  - 127.0.0.1
+  - ::1
+  permissions:
+  - action: api
+  - action: metrics
+  - action: pprof
+authHTTPAddress: null
+authHTTPExclude:
+- action: api
+- action: metrics
+- action: pprof
+authJWTJWKS: null
+authJWTJWKSFingerprint: null
+authJWTClaimKey: mediamtx_permissions
+authJWTExclude: []
+authJWTInHTTPQuery: true
+pathDefaults:
+  source: publisher
+  sourceFingerprint: null
+  sourceOnDemand: false
+  sourceOnDemandStartTimeout: 10s
+  sourceOnDemandCloseAfter: 10s
+  maxReaders: 0
+  srtReadPassphrase: null
+  fallback: null
+  useAbsoluteTimestamp: false
+  record: false
+  recordPath: ./recordings/%path/%Y-%m-%d_%H-%M-%S-%f
+  recordFormat: fmp4
+  recordPartDuration: 1s
+  recordMaxPartSize: 50M
+  recordSegmentDuration: 1h
+  recordDeleteAfter: 1d
+  overridePublisher: true
+  srtPublishPassphrase: null
+  rtspTransport: automatic
+  rtspAnyPort: true
+  rtspRangeType: null
+  rtspRangeStart: null
+  rtspUDPReadBufferSize: 0
+  mpegtsUDPReadBufferSize: 0
+  rtpSDP: null
+  rtpUDPReadBufferSize: 0
+  sourceRedirect: null
+  rpiCameraCamID: 0
+  rpiCameraSecondary: false
+  rpiCameraWidth: 1920
+  rpiCameraHeight: 1080
+  rpiCameraHFlip: false
+  rpiCameraVFlip: false
+  rpiCameraBrightness: 0
+  rpiCameraContrast: 1
+  rpiCameraSaturation: 1
+  rpiCameraSharpness: 1
+  rpiCameraExposure: normal
+  rpiCameraAWB: auto
+  rpiCameraAWBGains:
+  - 0
+  - 0
+  rpiCameraDenoise: 'off'
+  rpiCameraShutter: 0
+  rpiCameraMetering: centre
+  rpiCameraGain: 0
+  rpiCameraEV: 0
+  rpiCameraROI: null
+  rpiCameraHDR: false
+  rpiCameraTuningFile: null
+  rpiCameraMode: null
+  rpiCameraFPS: 30
+  rpiCameraAfMode: continuous
+  rpiCameraAfRange: normal
+  rpiCameraAfSpeed: normal
+  rpiCameraLensPosition: 0.0
+  rpiCameraAfWindow: null
+  rpiCameraFlickerPeriod: 0
+  rpiCameraTextOverlayEnable: false
+  rpiCameraTextOverlay: '%Y-%m-%d %H:%M:%S - MediaMTX'
+  rpiCameraCodec: auto
+  rpiCameraIDRPeriod: 60
+  rpiCameraBitrate: 5000000
+  rpiCameraHardwareH264Profile: main
+  rpiCameraHardwareH264Level: '4.1'
+  rpiCameraSoftwareH264Profile: baseline
+  rpiCameraSoftwareH264Level: '4.1'
+  rpiCameraMJPEGQuality: 60
+  runOnInit: null
+  runOnInitRestart: false
+  runOnDemand: null
+  runOnDemandRestart: false
+  runOnDemandStartTimeout: 10s
+  runOnDemandCloseAfter: 10s
+  runOnUnDemand: null
+  runOnReady: null
+  runOnReadyRestart: false
+  runOnNotReady: null
+  runOnRead: null
+  runOnReadRestart: false
+  runOnUnread: null
+  runOnRecordSegmentCreate: null
+  runOnRecordSegmentComplete: null
+rtsp: true
+rtspTransports:
+- udp
+- multicast
+- tcp
+rtspEncryption: 'no'
+rtspAddress: :8554
+rtspsAddress: :8322
+rtpAddress: :8000
+rtcpAddress: :8001
+multicastIPRange: 224.1.0.0/16
+multicastRTPPort: 8002
+multicastRTCPPort: 8003
+multicastSRTPPort: 8006
+multicastSRTCPPort: 8007
+rtspServerKey: server.key
+rtspServerCert: server.crt
+rtspAuthMethods:
+- basic
+rtspUDPReadBufferSize: 0
+webrtc: true
+webrtcAddress: :8889
+webrtcEncryption: false
+webrtcServerKey: server.key
+webrtcServerCert: server.crt
+webrtcAllowOrigin: '*'
+webrtcTrustedProxies: []
+webrtcLocalUDPAddress: :8189
+webrtcLocalTCPAddress: ''
+webrtcIPsFromInterfaces: true
+webrtcIPsFromInterfacesList:
+- wg0
+webrtcAdditionalHosts:
+- 127.0.0.1
+- 192.168.1.11
+- 192.168.137.1
+- 10.23.254.6
+webrtcICEServers2: []
+webrtcHandshakeTimeout: 15s
+webrtcTrackGatherTimeout: 5s
+webrtcSTUNGatherTimeout: 0s
+hls: false
+hlsAddress: :8888
+hlsEncryption: false
+hlsServerKey: server.key
+hlsServerCert: server.crt
+hlsAllowOrigin: '*'
+hlsTrustedProxies: []
+hlsAlwaysRemux: false
+hlsVariant: lowLatency
+hlsSegmentCount: 7
+hlsSegmentDuration: 1s
+hlsPartDuration: 200ms
+hlsSegmentMaxSize: 50M
+hlsDirectory: ''
+hlsMuxerCloseAfter: 60s
+rtmp: false
+rtmpAddress: :1935
+rtmpEncryption: 'no'
+rtmpsAddress: :1936
+rtmpServerKey: server.key
+rtmpServerCert: server.crt
+srt: true
+srtAddress: :8890
+srtpAddress: :8004
+srtcpAddress: :8005
 logLevel: info
+logDestinations:
+- stdout
+logFile: mediamtx.log
+sysLogPrefix: mediamtx
+readTimeout: 10s
+writeTimeout: 10s
+writeQueueSize: 512
+udpMaxPayloadSize: 1472
+runOnConnect: null
+runOnConnectRestart: false
+runOnDisconnect: null
+api: false
+apiAddress: :9997
+apiEncryption: false
+apiServerKey: server.key
+apiServerCert: server.crt
+apiAllowOrigin: '*'
+apiTrustedProxies: []
+metrics: false
+metricsAddress: :9998
+metricsEncryption: false
+metricsServerKey: server.key
+metricsServerCert: server.crt
+metricsAllowOrigin: '*'
+metricsTrustedProxies: []
+pprof: false
+pprofAddress: :9999
+pprofEncryption: false
+pprofServerKey: server.key
+pprofServerCert: server.crt
+pprofAllowOrigin: '*'
+pprofTrustedProxies: []
+playback: false
+playbackAddress: :9996
+playbackEncryption: false
+playbackServerKey: server.key
+playbackServerCert: server.crt
+playbackAllowOrigin: '*'
+playbackTrustedProxies: []

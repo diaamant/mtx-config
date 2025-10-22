@@ -43,16 +43,10 @@ paths:
     source: rtsp://user01:user01@192.168.10.121:554/cam/realmonitor?channel=1&subtype=1
     rtspTransport: tcp
     sourceOnDemand: true
-  vgh0:
-    runOnDemand: gst-launch-1.0 rtspsrc location="rtsp://root:ipc@192.168.1.123:554/stream=0"
-      name=src01 ! rtpjitterbuffer latency=100 ! queue ! rtph265depay ! h265parse
-      ! rtspclientsink location=rtsp://unit058:fMCGdnC0FUSS@localhost:8554/vgh0
-    runOnDemandRestart: true
-    runOnDemandStartTimeout: 5s
   vgh:
-    runOnDemand: gst-launch-1.0 rtspsrc location="rtsp://root:ipc@192.168.1.123:554/stream=0"
-      name=src01 ! rtpjitterbuffer latency=100 ! queue ! rtph265depay ! h265parse
-      ! rtspclientsink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH
+    runOnDemand: gst-launch-1.0 rtspsrc name=rtspsrc01 location="rtsp://root:ipc@192.168.1.123:554/stream=0"
+      rtspsrc01. ! application/x-rtp,media=video ! rtpjitterbuffer latency=100 ! queue
+      ! parsebin ! queue ! sink. rtspclientsink name=sink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH
     runOnDemandRestart: true
     runOnDemandStartTimeout: 5s
   vgl:
@@ -106,6 +100,30 @@ paths:
     runOnDemandRestart: true
     runOnDemandStartTimeout: 7s
     runOnDemandCloseAfter: 1s
+  vl264:
+    runOnDemand: gst-launch-1.0 rtspsrc name=rtspsrc01 location="rtsp://root:ipc@192.168.1.123:554/stream=1"
+      rtspsrc01. ! application/x-rtp,media=video ! rtpjitterbuffer latency=100 ! queue
+      ! rtph264depay ! h264parse ! rtspclientsink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH
+    runOnDemandRestart: true
+    runOnDemandStartTimeout: 5s
+  vh265:
+    runOnDemand: gst-launch-1.0 rtspsrc name=rtspsrc01 location="rtsp://root:ipc@192.168.1.123:554/stream=0"
+      rtspsrc01. ! application/x-rtp,media=video ! rtpjitterbuffer latency=100 ! queue
+      ! rtph265depay ! h265parse ! rtspclientsink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH
+    runOnDemandRestart: true
+    runOnDemandStartTimeout: 5s
+  vh264:
+    runOnDemand: gst-launch-1.0 rtspsrc name=rtspsrc01 location="rtsp://root:ipc@192.168.1.123:554/stream=0"
+      rtspsrc01. ! application/x-rtp,media=video ! rtpjitterbuffer latency=100 ! queue
+      ! rtph264depay ! h264parse ! rtspclientsink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH
+    runOnDemandRestart: true
+    runOnDemandStartTimeout: 5s
+  vl265:
+    runOnDemand: gst-launch-1.0 rtspsrc name=rtspsrc01 location="rtsp://root:ipc@192.168.1.123:554/stream=1"
+      rtspsrc01. ! application/x-rtp,media=video ! rtpjitterbuffer latency=100 ! queue
+      ! rtph265depay ! h265parse ! rtspclientsink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH
+    runOnDemandRestart: true
+    runOnDemandStartTimeout: 5s
 authMethod: internal
 authInternalUsers:
 - user: unit058
@@ -145,90 +163,6 @@ authJWTJWKSFingerprint: null
 authJWTClaimKey: mediamtx_permissions
 authJWTExclude: []
 authJWTInHTTPQuery: true
-pathDefaults:
-  source: publisher
-  sourceFingerprint: null
-  sourceOnDemand: false
-  sourceOnDemandStartTimeout: 10s
-  sourceOnDemandCloseAfter: 10s
-  maxReaders: 0
-  srtReadPassphrase: null
-  fallback: null
-  useAbsoluteTimestamp: false
-  record: false
-  recordPath: ./recordings/%path/%Y-%m-%d_%H-%M-%S-%f
-  recordFormat: fmp4
-  recordPartDuration: 1s
-  recordMaxPartSize: 50M
-  recordSegmentDuration: 1h
-  recordDeleteAfter: 1d
-  overridePublisher: true
-  srtPublishPassphrase: null
-  rtspTransport: automatic
-  rtspAnyPort: true
-  rtspRangeType: null
-  rtspRangeStart: null
-  rtspUDPReadBufferSize: 0
-  mpegtsUDPReadBufferSize: 0
-  rtpSDP: null
-  rtpUDPReadBufferSize: 0
-  sourceRedirect: null
-  rpiCameraCamID: 0
-  rpiCameraSecondary: false
-  rpiCameraWidth: 1920
-  rpiCameraHeight: 1080
-  rpiCameraHFlip: false
-  rpiCameraVFlip: false
-  rpiCameraBrightness: 0
-  rpiCameraContrast: 1
-  rpiCameraSaturation: 1
-  rpiCameraSharpness: 1
-  rpiCameraExposure: normal
-  rpiCameraAWB: auto
-  rpiCameraAWBGains:
-  - 0
-  - 0
-  rpiCameraDenoise: 'off'
-  rpiCameraShutter: 0
-  rpiCameraMetering: centre
-  rpiCameraGain: 0
-  rpiCameraEV: 0
-  rpiCameraROI: null
-  rpiCameraHDR: false
-  rpiCameraTuningFile: null
-  rpiCameraMode: null
-  rpiCameraFPS: 30
-  rpiCameraAfMode: continuous
-  rpiCameraAfRange: normal
-  rpiCameraAfSpeed: normal
-  rpiCameraLensPosition: 0.0
-  rpiCameraAfWindow: null
-  rpiCameraFlickerPeriod: 0
-  rpiCameraTextOverlayEnable: false
-  rpiCameraTextOverlay: '%Y-%m-%d %H:%M:%S - MediaMTX'
-  rpiCameraCodec: auto
-  rpiCameraIDRPeriod: 60
-  rpiCameraBitrate: 5000000
-  rpiCameraHardwareH264Profile: main
-  rpiCameraHardwareH264Level: '4.1'
-  rpiCameraSoftwareH264Profile: baseline
-  rpiCameraSoftwareH264Level: '4.1'
-  rpiCameraMJPEGQuality: 60
-  runOnInit: null
-  runOnInitRestart: false
-  runOnDemand: null
-  runOnDemandRestart: false
-  runOnDemandStartTimeout: 10s
-  runOnDemandCloseAfter: 10s
-  runOnUnDemand: null
-  runOnReady: null
-  runOnReadyRestart: false
-  runOnNotReady: null
-  runOnRead: null
-  runOnReadRestart: false
-  runOnUnread: null
-  runOnRecordSegmentCreate: null
-  runOnRecordSegmentComplete: null
 rtsp: true
 rtspTransports:
 - udp
