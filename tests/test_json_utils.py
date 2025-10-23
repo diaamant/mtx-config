@@ -29,12 +29,18 @@ def temp_work_dir(tmp_path):
 @patch("src.clients.yaml_client.get_settings_func")
 @patch("src.clients.json_client.get_settings_func")
 @patch("src.clients.yaml_client.JSONClient")
-def test_load_data_creates_enabled_flags(mock_json_client_class, mock_json_get_settings, mock_yaml_get_settings, temp_work_dir):
+def test_load_data_creates_enabled_flags(
+    mock_json_client_class,
+    mock_json_get_settings,
+    mock_yaml_get_settings,
+    temp_work_dir,
+):
     """Tests that load_data correctly loads json files and adds the '_enabled' flag."""
     work_dir, json_dir, yaml_file = temp_work_dir
 
     # Clear the client cache
     from src.clients.config_clients import get_config_client
+
     get_config_client.cache_clear()
 
     mock_settings = MagicMock()
@@ -62,12 +68,18 @@ def test_load_data_creates_enabled_flags(mock_json_client_class, mock_json_get_s
 @patch("src.clients.yaml_client.get_settings_func")
 @patch("src.clients.json_client.get_settings_func")
 @patch("src.clients.yaml_client.JSONClient")
-def test_save_data_creates_yaml_and_backup(mock_json_client_class, mock_json_get_settings, mock_yaml_get_settings, temp_work_dir):
+def test_save_data_creates_yaml_and_backup(
+    mock_json_client_class,
+    mock_json_get_settings,
+    mock_yaml_get_settings,
+    temp_work_dir,
+):
     """Tests that save_data correctly creates the YAML file and a backup."""
     work_dir, json_dir, yaml_file = temp_work_dir
 
     # Clear the client cache
     from src.clients.config_clients import get_config_client
+
     get_config_client.cache_clear()
 
     mock_settings = MagicMock()
@@ -114,12 +126,18 @@ def test_save_data_creates_yaml_and_backup(mock_json_client_class, mock_json_get
 @patch("src.clients.yaml_client.get_settings_func")
 @patch("src.clients.json_client.get_settings_func")
 @patch("src.clients.yaml_client.JSONClient")
-def test_save_data_skips_disabled_sections(mock_json_client_class, mock_json_get_settings, mock_yaml_get_settings, temp_work_dir):
+def test_save_data_skips_disabled_sections(
+    mock_json_client_class,
+    mock_json_get_settings,
+    mock_yaml_get_settings,
+    temp_work_dir,
+):
     """Tests that save_data correctly skips sections that are disabled."""
     work_dir, json_dir, yaml_file = temp_work_dir
 
     # Clear the client cache
     from src.clients.config_clients import get_config_client
+
     get_config_client.cache_clear()
 
     mock_settings = MagicMock()

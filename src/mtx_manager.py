@@ -46,6 +46,105 @@ class MtxConfigManager:
 
         return self.data
 
+    def export_config(self) -> str:
+        """Export current configuration as YAML string.
+
+        Returns:
+            str: YAML-formatted configuration string
+        """
+        try:
+            # Get the YAML client
+            yaml_client = get_config_client("YAML")
+
+            # Export the configuration to YAML format
+            yaml_content = yaml_client.export_config(self.data)
+
+            # Validate the exported YAML
+            try:
+                # Try to parse back to ensure it's valid YAML
+                yaml.safe_load(yaml_content)
+                return yaml_content
+            except yaml.YAMLError as e:
+                logger.error(f"Invalid YAML generated during export: {e}")
+                raise ValueError("Failed to generate valid YAML configuration") from e
+
+        except Exception as e:
+            logger.error(f"Export failed: {e}", exc_info=True)
+            raise
+
+    def import_config(self, yaml_content: str) -> None:
+        """Import configuration from YAML string.
+
+        Args:
+            yaml_content: YAML-formatted configuration string
+
+        Raises:
+            ValueError: If the YAML is invalid or validation fails
+        """
+        try:
+            # Parse YAML content
+            try:
+                parsed_config = yaml.safe_load(yaml_content)
+                if not isinstance(parsed_config, dict):
+                    raise ValueError("Invalid YAML format: expected a dictionary")
+            except yaml.YAMLError as e:
+                raise ValueError(f"Invalid YAML: {e}") from e
+
+            # Get YAML client for validation and conversion
+            yaml_client = get_config_client("YAML")
+
+            # Convert YAML to internal format (reverse of export)
+            # This is a simplified example - adjust based on your actual data structure
+            imported_data = yaml_client.import_config(parsed_config)
+
+            # Validate the imported data
+            self._validate_imported_data(imported_data)
+
+            # Update internal state
+            self.data = imported_data
+
+            # Update paths config if paths were imported
+            if "paths.json" in self.data:
+                try:
+                    self._paths_config = PathsConfig(
+                        paths={
+                            name: StreamConfig(**config)
+                            for name, config in self.data["paths.json"].items()
+                        }
+                    )
+                except ValidationError as e:
+                    logger.error(f"Validation error in imported paths: {e}")
+                    raise ValueError(f"Invalid paths configuration: {e}") from e
+
+            # Notify observers about the update
+            # Using None for key and value since we're updating multiple values
+            self._notify_observers("__all__", None)
+
+            logger.info("Configuration imported successfully")
+
+        except Exception as e:
+            logger.error(f"Import failed: {e}", exc_info=True)
+            raise
+
+    def _validate_imported_data(self, data: Dict[str, Any]) -> None:
+        """Validate imported configuration data.
+
+        Args:
+            data: Imported configuration data
+
+        Raises:
+            ValueError: If validation fails
+        """
+        # Add any additional validation logic here
+        if not isinstance(data, dict):
+            raise ValueError("Configuration must be a dictionary")
+
+        # Example: Ensure required sections exist
+        required_sections = ["paths.json"]
+        for section in required_sections:
+            if section not in data:
+                raise ValueError(f"Missing required section: {section}")
+
     def save_data(self) -> None:
         """Save all data using YAMLClient."""
         yaml_client = get_config_client("YAML")

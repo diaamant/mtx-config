@@ -1,4 +1,3 @@
-
 """RTSP tab component with detailed settings."""
 
 from typing import Dict, Any
@@ -37,7 +36,9 @@ def build_rtsp_tab(container: ui.element, data: Dict[str, Any]):
             with ui.card_section():
                 ui.label("Network Addresses and Ports").classes("text-lg font-bold")
             with ui.row().classes("w-full"):
-                create_ui_element("rtspAddress", rtsp_data.get("rtspAddress"), rtsp_data)
+                create_ui_element(
+                    "rtspAddress", rtsp_data.get("rtspAddress"), rtsp_data
+                )
                 create_ui_element(
                     "rtspsAddress", rtsp_data.get("rtspsAddress"), rtsp_data
                 )

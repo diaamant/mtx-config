@@ -2,99 +2,14 @@ import json
 import yaml
 from pathlib import Path
 
-# --- СПИСКИ КЛЮЧЕЙ ДЛЯ РАЗДЕЛЕНИЯ ---
-# Ключи, относящиеся к аутентификации
-AUTH_KEYS = [
-    "authMethod",
-    "authInternalUsers",
-    "authHTTPAddress",
-    "authHTTPExclude",
-    "authJWTJWKS",
-    "authJWTJWKSFingerprint",
-    "authJWTClaimKey",
-    "authJWTExclude",
-    "authJWTInHTTPQuery",
-]
-
-# Ключи, относящиеся к RTSP
-RTSP_KEYS = [
-    "rtsp",
-    "rtspTransports",
-    "rtspEncryption",
-    "rtspAddress",
-    "rtspsAddress",
-    "rtpAddress",
-    "rtcpAddress",
-    "multicastIPRange",
-    "multicastRTPPort",
-    "multicastRTCPPort",
-    "multicastSRTPPort",
-    "multicastSRTCPPort",
-    "rtspServerKey",
-    "rtspServerCert",
-    "rtspAuthMethods",
-    "rtspUDPReadBufferSize",
-]
-
-# Ключи, относящиеся к WebRTC
-WEBRTC_KEYS = [
-    "webrtc",
-    "webrtcAddress",
-    "webrtcEncryption",
-    "webrtcServerKey",
-    "webrtcServerCert",
-    "webrtcAllowOrigin",
-    "webrtcTrustedProxies",
-    "webrtcLocalUDPAddress",
-    "webrtcLocalTCPAddress",
-    "webrtcIPsFromInterfaces",
-    "webrtcIPsFromInterfacesList",
-    "webrtcAdditionalHosts",
-    "webrtcICEServers2",
-    "webrtcHandshakeTimeout",
-    "webrtcTrackGatherTimeout",
-    "webrtcSTUNGatherTimeout",
-]
-
-# Ключи, относящиеся к HLS
-HLS_KEYS = [
-    "hls",
-    "hlsAddress",
-    "hlsEncryption",
-    "hlsServerKey",
-    "hlsServerCert",
-    "hlsAllowOrigin",
-    "hlsTrustedProxies",
-    "hlsAlwaysRemux",
-    "hlsVariant",
-    "hlsSegmentCount",
-    "hlsSegmentDuration",
-    "hlsPartDuration",
-    "hlsSegmentMaxSize",
-    "hlsDirectory",
-    "hlsMuxerCloseAfter",
-]
-
-# Ключи, относящиеся к RTMP
-RTMP_KEYS = [
-    "rtmp",
-    "rtmpAddress",
-    "rtmpEncryption",
-    "rtmpsAddress",
-    "rtmpServerKey",
-    "rtmpServerCert",
-]
-
-# Ключи, относящиеся к SRT
-SRT_KEYS = [
-    "srt",
-    "srtAddress",
-    "srtpAddress",
-    "srtcpAddress",
-]
-
-
-# ---------------------------------------------
+from src.core.keys import (
+    AUTH_KEYS,
+    RTSP_KEYS,
+    WEBRTC_KEYS,
+    HLS_KEYS,
+    RTMP_KEYS,
+    SRT_KEYS,
+)
 
 
 def pop_keys_to_dict(source_dict, keys_list):
@@ -128,7 +43,7 @@ def main():
     # Предполагаем, что main.py лежит в <project_root>/src/
     # а mediamtx01.yml лежит в <project_root>/work/
     base_dir = Path(__file__).parent.parent.parent
-    config_file_path = base_dir / "work/mediamtx01.yml.orig"
+    config_file_path = base_dir / "work/orig/mediamtx01.yml"
 
     # Новый каталог для вывода
     output_dir = base_dir / "work/json/"

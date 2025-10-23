@@ -131,7 +131,9 @@ class TestYAMLClient:
 
     @patch("src.clients.yaml_client.get_settings_func")
     @patch("src.clients.yaml_client.JSONClient")
-    def test_save_config_success(self, mock_json_client_class, mock_get_settings, temp_work_dir):
+    def test_save_config_success(
+        self, mock_json_client_class, mock_get_settings, temp_work_dir
+    ):
         """Test successful YAML saving."""
         work_dir, json_dir, yaml_file, yaml_backup = temp_work_dir
 

@@ -46,7 +46,7 @@ class SearchState:
         asyncio.create_task(self.debounced_update())
 
 
-def add_new_stream(data: Dict[str, Any], container, rebuild_func: Callable) -> None:
+def add_new_stream(data: Dict[str, Any], rebuild_func: Callable) -> None:
     """Dialog to add a new stream with live update."""
     with ui.dialog() as dialog, ui.card():
         ui.label("Добавить новый поток").classes("text-h6 mb-0")
@@ -91,8 +91,7 @@ def add_new_stream(data: Dict[str, Any], container, rebuild_func: Callable) -> N
             ui.notify(f'Поток "{name}" добавлен!', color="positive")
 
             # Live update - rebuild the container
-            container.clear()
-            rebuild_func(container, data)
+            rebuild_func()
 
         with ui.row().classes("w-full justify-end gap-2 mt-4"):
             ui.button("Отмена", on_click=dialog.close).props("flat")
@@ -102,7 +101,7 @@ def add_new_stream(data: Dict[str, Any], container, rebuild_func: Callable) -> N
 
 
 def clone_stream(
-    data: Dict[str, Any], source_name: str, container, rebuild_func: Callable
+    data: Dict[str, Any], source_name: str, rebuild_func: Callable
 ) -> None:
     """Dialog to clone an existing stream."""
     with ui.dialog() as dialog, ui.card():
@@ -135,8 +134,7 @@ def clone_stream(
             )
 
             # Live update
-            container.clear()
-            rebuild_func(container, data)
+            rebuild_func()
 
         with ui.row().classes("w-full justify-end gap-2 mt-4"):
             ui.button("Отмена", on_click=dialog.close).props("flat")
@@ -247,7 +245,7 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
                                     ui.button(
                                         icon="content_copy",
                                         on_click=lambda n=stream_name: clone_stream(
-                                            data, n, container, build_paths_tab
+                                            data, n, rebuild_streams_list
                                         ),
                                     ).props("flat dense").tooltip("Клонировать")
                                     ui.button(
@@ -310,7 +308,7 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
             ui.button(
                 "Добавить поток",
                 icon="add",
-                on_click=lambda: add_new_stream(data, container, build_paths_tab),
+                on_click=lambda: add_new_stream(data, rebuild_streams_list),
                 color="positive",
             )
 

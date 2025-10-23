@@ -1,6 +1,8 @@
 from nicegui import ui
+from nicegui.events import UploadEventArguments
 
 from src.core.config import get_settings
+from src.core.keys import TAB_NAMES
 from src.core.log import logger
 from src.mtx_manager import MtxConfigManager
 from ui_components.auth_tab import build_auth_tab
@@ -9,19 +11,6 @@ from ui_components.paths_tab import build_paths_tab
 from ui_components.preview_tab import build_preview_tab
 from ui_components.rtsp_tab import build_rtsp_tab
 
-# Tab names mapping
-TAB_NAMES = {
-    "values_app.json": "App",
-    "auth.json": "Auth",
-    "values_rtsp.json": "RTSP",
-    "values_webrtc.json": "WebRTC",
-    "values_hls.json": "HLS",
-    "values_rtmp.json": "RTMP",
-    "values_srt.json": "SRT",
-    "values_pathDefaults.json": "Path Defaults",
-    "paths.json": "Paths",
-    "preview": "Preview",
-}
 
 # Centralized manager for all configuration data
 config_manager = MtxConfigManager()
@@ -70,18 +59,101 @@ def validate_config() -> None:
 config_manager.load_data()
 config_manager.update_preview()
 
+
+def export_config() -> None:
+    """Export current configuration to a file."""
+    try:
+        # Get YAML content from config manager
+        yaml_content = config_manager.export_config()
+
+        # Create a download link
+        ui.download(
+            content=yaml_content,
+            filename="mediamtx_config.yaml",
+            label="Скачать конфигурацию",
+        )
+
+        ui.notify("Конфигурация успешно экспортирована!", color="positive")
+        logger.info("Configuration exported successfully")
+
+    except Exception as e:
+        logger.error(f"Export failed: {e}", exc_info=True)
+        ui.notify(f"Ошибка при экспорте: {e}", color="negative", timeout=5000)
+
+
+async def handle_import(upload_event: UploadEventArguments) -> None:
+    """Handle file upload for import.
+
+    Args:
+        upload_event: UploadEventArguments object containing file information
+    """
+    try:
+        # Check if content exists
+        if not hasattr(upload_event, "file") or not upload_event.file:
+            ui.notify("Файл не загружен или пустой", color="warning")
+            return
+
+        # 2. Использовать await для чтения байтов и затем декодировать
+        content_bytes = await upload_event.file.read()
+        content = content_bytes.decode("utf-8")
+
+        # 1. Import configuration (updates in-memory manager)
+        config_manager.import_config(content)
+
+        # 2. (Важно) Save the imported data to disk *before* reloading
+        config_manager.save_data()
+
+        # 3. Update preview
+        config_manager.update_preview()
+
+        ui.notify(
+            "Конфигурация успешно импортирована! Перезагрузка...", color="positive"
+        )
+        logger.info("Configuration imported successfully. Reloading UI.")
+
+        # 4. Force page reload to reflect changes
+        ui.open("/")
+
+    except UnicodeDecodeError as e:
+        logger.error(f"Failed to decode file content: {e}")
+        ui.notify(
+            "Ошибка кодировки файла. Поддерживается только UTF-8",
+            color="negative",
+            timeout=5000,
+        )
+    except Exception as e:
+        logger.error(f"Import failed: {e}", exc_info=True)
+        ui.notify(f"Ошибка при импорте: {e}", color="negative", timeout=5000)
+
+
 with ui.header().classes("bg-primary"):
     ui.label("Mediamtx Configuration Editor").classes("text-2xl font-bold")
     ui.space()
+
+    ui.upload(
+        on_upload=handle_import,
+        auto_upload=True,
+        multiple=False,
+    ).props('accept=".yaml,.yml" icon="upload" color="accent"').classes("mr-2").tooltip(
+        "Импорт конфигурации"
+    )
+
+    # Export button
+    ui.button(
+        "Экспорт", on_click=export_config, icon="download", color="accent"
+    ).classes("mr-2")
+
     ui.button(
         "Валидация", on_click=validate_config, icon="check_circle", color="info"
     ).classes("mr-2")
+
     ui.button(
         "Предпросмотр",
         on_click=config_manager.update_preview,
         icon="visibility",
         color="accent",
     ).classes("mr-2")
+
     ui.button("Сохранить", on_click=save_and_notify, icon="save", color="positive")
 
 

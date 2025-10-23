@@ -1,0 +1,38 @@
+{
+  "tools": {
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/mnt/data/storeSoft/projPySample/mtx-config/"
+      ]
+    },
+    "git": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "mcp-server-git",
+        "--repository",
+        "https://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@github.com/diaamant/mtx-config.git"
+      ]
+    },
+    "curl": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@mcp-get-community/server-curl"
+      ]
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ],
+      "env": {
+        "CONTEXT7_API_KEY": "ctx7sk-b09867b0-c51c-480a-afdc-c3f67609e2ad"
+      }
+    }
+  }
+}
