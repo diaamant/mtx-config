@@ -171,5 +171,5 @@ work/json/*_enabled
 *.log
 
 GEMINI.md
-# gemini.json
+gemini.json
 doc/task/completed
