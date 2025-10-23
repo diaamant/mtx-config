@@ -3,6 +3,7 @@ import yaml
 from pathlib import Path
 
 from src.core.keys import (
+    NAMES_TAB,
     AUTH_KEYS,
     RTSP_KEYS,
     WEBRTC_KEYS,
@@ -79,22 +80,22 @@ def main():
         rtmp_data = pop_keys_to_dict(config_data, RTMP_KEYS)
         srt_data = pop_keys_to_dict(config_data, SRT_KEYS)
 
-        # 3d. Все, что осталось - это 'values_app'
+        # 3d. Все, что осталось - это 'APP'
         app_data = config_data
 
         print("\nРазделение завершено. Начинаем сохранение файлов...")
 
         # 4. Сохранение результатов в JSON файлы
         print(f"Сохраняем JSON в директорию: {output_dir}\n")
-        save_json_data(paths_data, output_dir / "paths.json")
-        save_json_data(auth_data, output_dir / "auth.json")
-        save_json_data(path_defaults_data, output_dir / "values_pathDefaults.json")
-        save_json_data(rtsp_data, output_dir / "values_rtsp.json")
-        save_json_data(webrtc_data, output_dir / "values_webrtc.json")
-        save_json_data(hls_data, output_dir / "values_hls.json")
-        save_json_data(rtmp_data, output_dir / "values_rtmp.json")
-        save_json_data(srt_data, output_dir / "values_srt.json")
-        save_json_data(app_data, output_dir / "values_app.json")
+        save_json_data(app_data, output_dir / f"{NAMES_TAB["APP"]}.json")
+        save_json_data(auth_data, output_dir / f"{NAMES_TAB["AUTH"]}.json")
+        save_json_data(paths_data, output_dir / f"{NAMES_TAB["PATHS"]}.json")
+        save_json_data(path_defaults_data, output_dir / f"{NAMES_TAB["PATH_DEFAULTS"]}.json")
+        save_json_data(rtsp_data, output_dir / f"{NAMES_TAB["RTSP"]}.json")
+        save_json_data(webrtc_data, output_dir / f"{NAMES_TAB["WEBRTC"]}.json")
+        save_json_data(hls_data, output_dir / f"{NAMES_TAB["HLS"]}.json")
+        save_json_data(rtmp_data, output_dir / f"{NAMES_TAB["RTMP"]}.json")
+        save_json_data(srt_data, output_dir / f"{NAMES_TAB["SRT"]}.json")
 
         print("\nЗадача выполнена.")
 

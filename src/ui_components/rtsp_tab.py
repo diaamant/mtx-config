@@ -7,10 +7,10 @@ from .ui_utils import create_ui_element
 
 def build_rtsp_tab(container: ui.element, data: Dict[str, Any]):
     """Builds the RTSP tab with organized sections for better readability."""
-    rtsp_data = data.get("values_rtsp.json", {})
+    rtsp_data = data.get("rtsp", {})
 
     if not rtsp_data:
-        ui.label("RTSP configuration (values_rtsp.json) not found.").classes(
+        ui.label("RTSP configuration (rtsp) not found.").classes(
             "text-negative"
         )
         return

@@ -2,7 +2,7 @@ from nicegui import ui
 from nicegui.events import UploadEventArguments
 
 from src.core.config import get_settings
-from src.core.keys import TAB_NAMES
+from src.core.keys import TAB_NAMES, NAMES_TAB
 from src.core.log import logger
 from src.mtx_manager import MtxConfigManager
 from ui_components.auth_tab import build_auth_tab
@@ -167,7 +167,7 @@ with ui.tabs().classes("w-full") as tabs:
         if filename in TAB_NAMES:
             ui.tab(
                 TAB_NAMES[filename],
-                icon="settings" if filename != "paths.json" else "stream",
+                icon="settings" if filename != "paths" else "stream",
             )
 
     # Add Preview tab
@@ -178,18 +178,26 @@ with ui.tab_panels(tabs, value=list(TAB_NAMES.values())[0]).classes("w-full"):
     for filename in sorted_files:
         if filename in TAB_NAMES:
             tab_name = TAB_NAMES[filename]
-            if filename == "paths.json":
-                with ui.tab_panel(tab_name):
-                    paths_tab_content = ui.column().classes("w-full")
-                    build_paths_tab(paths_tab_content, config_manager.data)
-            elif filename == "auth.json":
+            if filename == "auth":
                 with ui.tab_panel(tab_name):
                     auth_tab_content = ui.column().classes("w-full")
-                    build_auth_tab(auth_tab_content, config_manager.data)
-            elif filename == "values_rtsp.json":
+                    auth_data = config_manager.data.get("auth", {})
+                    build_auth_tab(auth_tab_content, auth_data)
+            elif filename == "rtsp":
                 with ui.tab_panel(tab_name):
                     rtsp_tab_content = ui.column().classes("w-full")
+                    with rtsp_tab_content:
+                        ui.checkbox(
+                            "Включить раздел Paths в mediamtx.yml",
+                            value=config_manager.get("paths_enabled", True),
+                        ).bind_value(config_manager.data, "paths_enabled")
+                        ui.separator()
                     build_rtsp_tab(rtsp_tab_content, config_manager.data)
+            elif filename == "paths":
+                with ui.tab_panel(tab_name):
+                    paths_tab_content = ui.column().classes("w-full")
+                    paths_data = config_manager.data.get("paths", {})
+                    build_paths_tab(paths_tab_content, paths_data)
             else:
                 build_generic_tab(tab_name, filename, config_manager.data)
 

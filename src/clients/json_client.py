@@ -35,10 +35,8 @@ class JSONClient(ConfigClient):
                     if not content:
                         logger.warning(f"File {json_file.name} is empty, skipping.")
                         continue
-                data[json_file.name] = content
-                # Мы можем не добавлять _enabled флаг здесь, т.к. это логика приложения,
-                # а не самого процесса загрузки. Но оставим для совместимости.
-                data[f"{json_file.name}_enabled"] = True
+                data[json_file.stem] = content
+                data[f"{json_file.stem}_enabled"] = True
             except json.JSONDecodeError:
                 logger.error(f"Error decoding JSON from {json_file}", exc_info=True)
             except IOError:

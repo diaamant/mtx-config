@@ -46,7 +46,7 @@ class SearchState:
         asyncio.create_task(self.debounced_update())
 
 
-def add_new_stream(data: Dict[str, Any], rebuild_func: Callable) -> None:
+def add_new_stream(paths_data: Dict[str, Any], rebuild_func: Callable) -> None:
     """Dialog to add a new stream with live update."""
     with ui.dialog() as dialog, ui.card():
         ui.label("Добавить новый поток").classes("text-h6 mb-0")
@@ -66,22 +66,19 @@ def add_new_stream(data: Dict[str, Any], rebuild_func: Callable) -> None:
                 ui.notify("Имя и тип потока обязательны!", color="negative")
                 return
 
-            if name in data.get("paths.json", {}):
+            if name in paths_data:
                 ui.notify("Поток с таким именем уже существует!", color="negative")
                 return
 
-            # Ensure paths.json exists
-            if "paths.json" not in data:
-                data["paths.json"] = {}
 
             if stype == "Source":
-                data["paths.json"][name] = {
+                paths_data[name] = {
                     "source": "rtsp://",
                     "rtspTransport": "udp",
                     "sourceOnDemand": False,
                 }
             elif stype == "RunOnDemand":
-                data["paths.json"][name] = {
+                paths_data[name] = {
                     "runOnDemand": "ffmpeg",
                     "runOnDemandRestart": False,
                     "runOnDemandStartTimeout": "10s",
@@ -101,7 +98,7 @@ def add_new_stream(data: Dict[str, Any], rebuild_func: Callable) -> None:
 
 
 def clone_stream(
-    data: Dict[str, Any], source_name: str, rebuild_func: Callable
+    paths_data: Dict[str, Any], source_name: str, rebuild_func: Callable
 ) -> None:
     """Dialog to clone an existing stream."""
     with ui.dialog() as dialog, ui.card():
@@ -120,13 +117,13 @@ def clone_stream(
                 ui.notify("Имя потока обязательно!", color="negative")
                 return
 
-            if name in data.get("paths.json", {}):
+            if name in paths_data:
                 ui.notify("Поток с таким именем уже существует!", color="negative")
                 return
 
             # Clone the configuration
-            source_config = data["paths.json"][source_name]
-            data["paths.json"][name] = source_config.copy()
+            source_config =paths_data[source_name]
+            paths_data[name] = source_config.copy()
 
             dialog.close()
             ui.notify(
@@ -148,7 +145,7 @@ def clone_stream(
     dialog.open()
 
 
-def build_paths_tab(container, data: Dict[str, Any]) -> None:
+def build_paths_tab(container, paths_data: Dict[str, Any]) -> None:
     """Build the content of the 'Paths' tab with search, filter, and grouping."""
 
     def get_stream_type(config: Dict[str, Any]) -> str:
@@ -163,7 +160,6 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
         """Rebuild the streams list with current filters and grouping."""
         streams_container.clear()
 
-        paths_data = data.get("paths.json", {})
         if not paths_data:
             with streams_container:
                 ui.label("Нет настроенных потоков.").classes(
@@ -245,7 +241,7 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
                                     ui.button(
                                         icon="content_copy",
                                         on_click=lambda n=stream_name: clone_stream(
-                                            data, n, rebuild_streams_list
+                                            paths_data, n, rebuild_streams_list
                                         ),
                                     ).props("flat dense").tooltip("Клонировать")
                                     ui.button(
@@ -267,8 +263,8 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
         """Show delete confirmation dialog."""
 
         def perform_delete():
-            if "paths.json" in data and name in data["paths.json"]:
-                del data["paths.json"][name]
+            if name in paths_data:
+                del paths_data[name]
                 ui.notify(f'Поток "{name}" удален!', color="warning")
                 rebuild_streams_list()  # Just rebuild the list
             dialog.close()
@@ -287,12 +283,6 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
     search_state = SearchState(rebuild_streams_list)
 
     with container:
-        ui.checkbox(
-            "Включить раздел Paths в mediamtx.yml",
-            value=data.get("paths.json_enabled", True),
-        ).bind_value(data, "paths.json_enabled")
-        ui.separator()
-
         # Toolbar
         with ui.row().classes("w-full items-center gap-2 mb-0"):
             ui.input(
@@ -308,7 +298,7 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
             ui.button(
                 "Добавить поток",
                 icon="add",
-                on_click=lambda: add_new_stream(data, rebuild_streams_list),
+                on_click=lambda: add_new_stream(paths_data, rebuild_streams_list),
                 color="positive",
             )
 
@@ -337,7 +327,6 @@ def build_paths_tab(container, data: Dict[str, Any]) -> None:
                         return
 
                     count = 0
-                    paths_data = data.get("paths.json", {})
                     for config in paths_data.values():
                         if "runOnDemand" in config and old in config["runOnDemand"]:
                             config["runOnDemand"] = config["runOnDemand"].replace(

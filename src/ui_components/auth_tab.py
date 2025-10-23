@@ -6,11 +6,11 @@ from .ui_utils import create_ui_element
 import json
 
 
-def build_auth_tab(container: ui.element, data: Dict[str, Any]):
+def build_auth_tab(container: ui.element, auth_data: Dict[str, Any]):
     """Build the content of the 'Auth' tab with special handling for internal users."""
-    auth_data = data.get("auth.json", {})
+
     if not auth_data:
-        ui.label("Auth configuration (auth.json) not found.").classes("text-negative")
+        ui.label("Auth configuration (auth) not found.").classes("text-negative")
         return
 
     def rebuild_users_list():

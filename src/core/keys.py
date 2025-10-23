@@ -1,16 +1,19 @@
 # Tab names mapping
-TAB_NAMES = {
-    "values_app.json": "App",
-    "auth.json": "Auth",
-    "values_rtsp.json": "RTSP",
-    "values_webrtc.json": "WebRTC",
-    "values_hls.json": "HLS",
-    "values_rtmp.json": "RTMP",
-    "values_srt.json": "SRT",
-    "values_pathDefaults.json": "Path Defaults",
-    "paths.json": "Paths",
-    "preview": "Preview",
+
+NAMES_TAB = {
+    "APP": "app",
+    "AUTH": "auth",
+    "RTSP": "rtsp",
+    "WEBRTC": "webrtc",
+    "HLS": "hls",
+    "RTMP": "rtmp",
+    "SRT": "srt",
+    "PATH_DEFAULTS": "pathDefaults",
+    "PATHS": "paths",
+    "Preview": "preview",
 }
+
+TAB_NAMES = {v: k for k, v in NAMES_TAB.items()}
 
 # --- СПИСКИ КЛЮЧЕЙ ДЛЯ РАЗДЕЛЕНИЯ ---
 # Ключи, относящиеся к аутентификации
@@ -102,3 +105,15 @@ SRT_KEYS = [
     "srtpAddress",
     "srtcpAddress",
 ]
+
+
+TAB_KEYS = {
+    "AUTH": AUTH_KEYS,
+    "RTSP": RTSP_KEYS,
+    "WEBRTC": WEBRTC_KEYS,
+    "HLS": HLS_KEYS,
+    "RTMP": RTMP_KEYS,
+    "SRT": SRT_KEYS,
+    "PATH_DEFAULTS": "pathDefaults",
+    "PATHS": "paths",
+}
