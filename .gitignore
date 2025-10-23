@@ -169,3 +169,7 @@ cython_debug/
 work/mediamtx01.yml.bak*
 work/json/*_enabled
 *.log
+
+GEMINI.md
+gemini.json
+doc/task
