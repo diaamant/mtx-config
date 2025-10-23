@@ -87,15 +87,17 @@ def main():
 
         # 4. Сохранение результатов в JSON файлы
         print(f"Сохраняем JSON в директорию: {output_dir}\n")
-        save_json_data(app_data, output_dir / f"{NAMES_TAB["APP"]}.json")
-        save_json_data(auth_data, output_dir / f"{NAMES_TAB["AUTH"]}.json")
-        save_json_data(paths_data, output_dir / f"{NAMES_TAB["PATHS"]}.json")
-        save_json_data(path_defaults_data, output_dir / f"{NAMES_TAB["PATH_DEFAULTS"]}.json")
-        save_json_data(rtsp_data, output_dir / f"{NAMES_TAB["RTSP"]}.json")
-        save_json_data(webrtc_data, output_dir / f"{NAMES_TAB["WEBRTC"]}.json")
-        save_json_data(hls_data, output_dir / f"{NAMES_TAB["HLS"]}.json")
-        save_json_data(rtmp_data, output_dir / f"{NAMES_TAB["RTMP"]}.json")
-        save_json_data(srt_data, output_dir / f"{NAMES_TAB["SRT"]}.json")
+        save_json_data(app_data, output_dir / f"{NAMES_TAB['APP']}.json")
+        save_json_data(auth_data, output_dir / f"{NAMES_TAB['AUTH']}.json")
+        save_json_data(paths_data, output_dir / f"{NAMES_TAB['PATHS']}.json")
+        save_json_data(
+            path_defaults_data, output_dir / f"{NAMES_TAB['PATH_DEFAULTS']}.json"
+        )
+        save_json_data(rtsp_data, output_dir / f"{NAMES_TAB['RTSP']}.json")
+        save_json_data(webrtc_data, output_dir / f"{NAMES_TAB['WEBRTC']}.json")
+        save_json_data(hls_data, output_dir / f"{NAMES_TAB['HLS']}.json")
+        save_json_data(rtmp_data, output_dir / f"{NAMES_TAB['RTMP']}.json")
+        save_json_data(srt_data, output_dir / f"{NAMES_TAB['SRT']}.json")
 
         print("\nЗадача выполнена.")
 

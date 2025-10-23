@@ -70,7 +70,6 @@ def add_new_stream(paths_data: Dict[str, Any], rebuild_func: Callable) -> None:
                 ui.notify("Поток с таким именем уже существует!", color="negative")
                 return
 
-
             if stype == "Source":
                 paths_data[name] = {
                     "source": "rtsp://",
@@ -122,7 +121,7 @@ def clone_stream(
                 return
 
             # Clone the configuration
-            source_config =paths_data[source_name]
+            source_config = paths_data[source_name]
             paths_data[name] = source_config.copy()
 
             dialog.close()

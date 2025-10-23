@@ -10,9 +10,7 @@ def build_rtsp_tab(container: ui.element, data: Dict[str, Any]):
     rtsp_data = data.get("rtsp", {})
 
     if not rtsp_data:
-        ui.label("RTSP configuration (rtsp) not found.").classes(
-            "text-negative"
-        )
+        ui.label("RTSP configuration (rtsp) not found.").classes("text-negative")
         return
 
     with container:
