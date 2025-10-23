@@ -32,12 +32,12 @@ class MtxConfigManager:
         self.data = json_client.load_config()
 
         # Initialize PathsConfig with validation
-        if "paths.json" in self.data:
+        if "paths" in self.data:
             try:
                 self._paths_config = PathsConfig(
                     paths={
                         name: StreamConfig(**config)
-                        for name, config in self.data["paths.json"].items()
+                        for name, config in self.data["paths"].items()
                     }
                 )
             except ValidationError as e:
@@ -333,25 +333,13 @@ class MtxConfigManager:
         try:
             # Assemble configuration like save does
             final_config = {}
-            for json_file_name, content in self.data.items():
-                if json_file_name.endswith("_enabled"):
+            for json_name, content in self.data.items():
+                if json_name.endswith("_enabled"):
                     continue
-                if not self.data.get(f"{json_file_name}_enabled", True):
+                if not self.data.get(f"{json_name}_enabled", True):
                     continue
-
-                if json_file_name == "paths.json":
-                    if "paths" not in final_config:
-                        final_config["paths"] = {}
-                    final_config["paths"].update(content)
-                elif json_file_name.startswith("values_"):
-                    key = json_file_name.replace("values_", "").replace(".json", "")
-                    if key == "app":
-                        final_config.update(content)
-                    else:
-                        final_config[key] = content
-                else:
-                    key = json_file_name.replace(".json", "")
-                    final_config[key] = content
+                key = json_name.replace(".json", "")
+                final_config[key] = content
 
             if "paths" not in final_config:
                 final_config["paths"] = {}
