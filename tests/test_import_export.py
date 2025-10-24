@@ -33,8 +33,8 @@ def test_yaml_client_structure_conversion():
 
     # Sample internal data structure
     internal_data = {
-        "values_app.json": {"logLevel": "info", "readTimeout": "10s"},
-        "auth.json": {"internal": True, "external": False},
+        "app.json": {"logLevel": "info", "readTimeout": "10s"},
+        "auth.json": {"authMethod": "internal"},
         "paths.json": {"stream1": {"source": "rtsp://test", "name": "test_stream"}},
     }
 
@@ -43,8 +43,9 @@ def test_yaml_client_structure_conversion():
 
     # Expected YAML structure
     expected_yaml = {
-        "app": {"logLevel": "info", "readTimeout": "10s"},
-        "auth": {"internal": True, "external": False},
+        "logLevel": "info",
+        "readTimeout": "10s",
+        "authMethod": "internal",
         "paths": {"stream1": {"source": "rtsp://test", "name": "test_stream"}},
     }
 
@@ -52,8 +53,11 @@ def test_yaml_client_structure_conversion():
 
     # Convert back to internal structure
     internal_structure = yaml_client._convert_from_yaml_structure(yaml_structure)
+    internal_structure_filtered = {k: v for k, v in internal_structure.items() if v}
 
-    assert internal_structure == internal_data, "Internal structure conversion failed"
+    assert internal_structure_filtered == internal_data, (
+        "Internal structure conversion failed"
+    )
 
     print("✅ Structure conversion test passed")
 

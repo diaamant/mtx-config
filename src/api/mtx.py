@@ -13,7 +13,7 @@ from src.ui_components.rtsp_tab import build_rtsp_tab
 
 
 def create_main_page():
-    @ui.page('/')
+    @ui.page("/")
     def main_page():
         # Centralized manager for all configuration data
         config_manager = MtxConfigManager()
@@ -46,7 +46,9 @@ def create_main_page():
 
                 with ui.scroll_area().classes("h-64 border p-2"):
                     for location, errs in errors.items():
-                        with ui.expansion(location, icon="error", value=True).classes("w-full"):
+                        with ui.expansion(location, icon="error", value=True).classes(
+                            "w-full"
+                        ):
                             for err in errs:
                                 ui.label(err).classes("text-sm text-red-800 ml-4")
 
@@ -105,12 +107,13 @@ def create_main_page():
                 config_manager.update_preview()
 
                 ui.notify(
-                    "Конфигурация успешно импортирована! Перезагрузка...", color="positive"
+                    "Конфигурация успешно импортирована! Перезагрузка...",
+                    color="positive",
                 )
                 logger.info("Configuration imported successfully. Reloading UI.")
 
                 # 4. Force page reload to reflect changes
-                ui.open("/")
+                ui.navigate.to("/")
 
             except UnicodeDecodeError as e:
                 logger.error(f"Failed to decode file content: {e}")
@@ -131,9 +134,9 @@ def create_main_page():
                 on_upload=handle_import,
                 auto_upload=True,
                 multiple=False,
-            ).props('accept=".yaml,.yml" icon="upload" color="accent"').classes("mr-2").tooltip(
-                "Импорт конфигурации"
-            )
+            ).props('accept=".yaml,.yml" icon="upload" color="accent"').classes(
+                "mr-2"
+            ).tooltip("Импорт конфигурации")
 
             # Export button
             ui.button(
@@ -151,13 +154,21 @@ def create_main_page():
                 color="accent",
             ).classes("mr-2")
 
-            ui.button("Сохранить", on_click=save_and_notify, icon="save", color="positive")
+            ui.button(
+                "Сохранить", on_click=save_and_notify, icon="save", color="positive"
+            )
 
         with ui.tabs().classes("w-full") as tabs:
             # Create tabs in a specific order
             sorted_files = sorted(
-                [key for key in config_manager.data.keys() if not key.endswith("_enabled")],
-                key=lambda x: list(TAB_NAMES.keys()).index(x) if x in TAB_NAMES else 999,
+                [
+                    key
+                    for key in config_manager.data.keys()
+                    if not key.endswith("_enabled")
+                ],
+                key=lambda x: list(TAB_NAMES.keys()).index(x)
+                if x in TAB_NAMES
+                else 999,
             )
             for filename in sorted_files:
                 if filename in TAB_NAMES:
@@ -198,7 +209,11 @@ def create_main_page():
 
             # Preview tab panel
             with ui.tab_panel("Preview"):
-                build_preview_tab(config_manager.preview_content, config_manager.update_preview)
+                build_preview_tab(
+                    config_manager.preview_content, config_manager.update_preview
+                )
 
         # Keyboard shortcuts
-        ui.keyboard(lambda e: save_and_notify() if e.key == "s" and e.modifiers.ctrl else None)
+        ui.keyboard(
+            lambda e: save_and_notify() if e.key == "s" and e.modifiers.ctrl else None
+        )

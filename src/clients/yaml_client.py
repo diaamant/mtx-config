@@ -3,11 +3,20 @@ from pathlib import Path
 from typing import Dict, Any
 
 import yaml
+from requests.packages import imported_mod
 
 from src.clients.abc_conf_client import ConfigClient
 from src.clients.json_client import JSONClient
 from src.core.config import get_settings as get_settings_func
+from src.core.keys import TAB_KEYS, NAMES_TAB, TAB_NAMES
 from src.core.log import logger
+
+
+def _pop_keys_to_dict(source_dict: Dict[str, Any], keys_list: list) -> Dict[str, Any]:
+    """
+    Извлекает (с удалением) ключи из source_dict в новый словарь.
+    """
+    return {key: source_dict.pop(key) for key in keys_list if key in source_dict}
 
 
 # --- реализация для YAML ---
@@ -76,7 +85,6 @@ class YAMLClient(ConfigClient):
             Dict[str, Any]: Configuration in internal format
         """
         try:
-            # Convert YAML structure back to internal format
             return self._convert_from_yaml_structure(yaml_data)
 
         except Exception as e:
@@ -85,59 +93,41 @@ class YAMLClient(ConfigClient):
 
     def _convert_to_yaml_structure(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Convert internal data structure to YAML-compatible format."""
-        yaml_data = {}
+        final_config = {}
+        for json_filename, content in data.items():
+            if not json_filename.endswith(".json") or not content:
+                continue
 
-        # Handle app data first, which goes to the root
-        if "values_app.json" in data:
-            yaml_data.update(data["values_app.json"])
+            if json_filename == "paths.json":
+                final_config["paths"] = content
+            elif json_filename == "pathDefaults.json":
+                final_config["pathDefaults"] = content
+            else:
+                # All other keys go to the root
+                final_config.update(content)
 
-        # Map other internal file names to YAML sections
-        section_mapping = {
-            "auth.json": "auth",
-            "values_rtsp.json": "rtsp",
-            "values_webrtc.json": "webrtc",
-            "values_hls.json": "hls",
-            "values_rtmp.json": "rtmp",
-            "values_srt.json": "srt",
-            "values_pathDefaults.json": "pathDefaults",
-            "paths.json": "paths",
-        }
-
-        # Convert each section
-        for file_name, section in section_mapping.items():
-            if file_name in data:
-                yaml_data[section] = data[file_name]
-
-        return yaml_data
+        return final_config
 
     def _convert_from_yaml_structure(self, yaml_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Convert YAML structure back to internal format."""
-        internal_data = {}
-        app_data = {}
+        """
+        Разделяет основной словарь конфигурации на части согласно TAB_KEYS.
+        """
+        imported_data = {}
+        # Make a copy to avoid modifying the original dict while iterating
+        config_data = yaml_data.copy()
 
-        # Map YAML sections back to internal file names
-        section_mapping = {
-            "auth": "auth.json",
-            "rtsp": "values_rtsp.json",
-            "webrtc": "values_webrtc.json",
-            "hls": "values_hls.json",
-            "rtmp": "values_rtmp.json",
-            "srt": "values_srt.json",
-            "pathDefaults": "values_pathDefaults.json",
-            "paths": "paths.json",
-        }
+        for tab_key, keys_or_name in TAB_KEYS.items():
+            filename = f"{NAMES_TAB[tab_key]}"
+            if isinstance(keys_or_name, list):
+                # Pop a group of keys
+                imported_data[filename] = _pop_keys_to_dict(config_data, keys_or_name)
+            elif isinstance(keys_or_name, str):
+                # Pop a single section (like pathDefaults or paths)
+                imported_data[filename] = config_data.pop(keys_or_name, None)
 
-        # Separate root-level keys from sections
-        for key, value in yaml_data.items():
-            if key in section_mapping:
-                internal_data[section_mapping[key]] = value
-            else:
-                app_data[key] = value
-
-        if app_data:
-            internal_data["values_app.json"] = app_data
-
-        return internal_data
+        # Whatever is left in config_data is app_data
+        imported_data[f"{NAMES_TAB['APP']}"] = config_data
+        return imported_data
 
     def save_config(self, data: Dict[str, Any]) -> None:
         """
@@ -147,7 +137,7 @@ class YAMLClient(ConfigClient):
         logger.debug(f"YAMLClient: Saving final config to {self.yaml_file}")
 
         # Шаг 1: Сохраняем JSON-файлы (делегируем JSONClient)
-        self.json_client.save_config(data)
+        # self.json_client.save_config(data)
 
         # Шаг 2: Создаем бэкап
         if self.yaml_file.exists():
@@ -161,16 +151,19 @@ class YAMLClient(ConfigClient):
         # Шаг 3: Собираем финальную конфигурацию из словаря `data`
         final_config = {}
         for key, content in data.items():
-            if not key.endswith(".json") or not data.get(f"{key}_enabled", True):
+            if key not in TAB_NAMES.keys():
+                continue
+
+            if not data.get(f"{key}_enabled"):
                 continue
 
             if not content:
                 continue
 
             # Логика сборки, как у вас и была
-            if key == "paths.json":
+            if key == "paths":
                 final_config["paths"] = content
-            elif key == "values_pathDefaults.json":
+            elif key == "pathDefaults":
                 final_config["pathDefaults"] = content
             else:
                 final_config.update(content)

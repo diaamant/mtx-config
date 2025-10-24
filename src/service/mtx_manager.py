@@ -84,8 +84,8 @@ class MtxConfigManager:
         try:
             # Parse YAML content
             try:
-                parsed_config = yaml.safe_load(yaml_content)
-                if not isinstance(parsed_config, dict):
+                yaml_config = yaml.safe_load(yaml_content)
+                if not isinstance(yaml_config, dict):
                     raise ValueError("Invalid YAML format: expected a dictionary")
             except yaml.YAMLError as e:
                 raise ValueError(f"Invalid YAML: {e}") from e
@@ -95,7 +95,7 @@ class MtxConfigManager:
 
             # Convert YAML to internal format (reverse of export)
             # This is a simplified example - adjust based on your actual data structure
-            imported_data = yaml_client.import_config(parsed_config)
+            imported_data = yaml_client.import_config(yaml_config)
 
             # Validate the imported data
             self._validate_imported_data(imported_data)
@@ -104,12 +104,12 @@ class MtxConfigManager:
             self.data = imported_data
 
             # Update paths config if paths were imported
-            if "paths.json" in self.data:
+            if "paths" in self.data:
                 try:
                     self._paths_config = PathsConfig(
                         paths={
                             name: StreamConfig(**config)
-                            for name, config in self.data["paths.json"].items()
+                            for name, config in self.data["paths"].items()
                         }
                     )
                 except ValidationError as e:
@@ -140,9 +140,9 @@ class MtxConfigManager:
             raise ValueError("Configuration must be a dictionary")
 
         # Example: Ensure required sections exist
-        required_sections = ["paths.json"]
+        required_sections = ["paths"]
         for section in required_sections:
-            if section not in data:
+            if section not in data or data[section] is None:
                 raise ValueError(f"Missing required section: {section}")
 
     def save_data(self) -> None:
