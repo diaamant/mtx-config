@@ -1,11 +1,10 @@
 """Tests for config import functionality."""
 
-import os
 import json
 import pytest
 import yaml
 from pathlib import Path
-from src.mtx_manager import MtxConfigManager
+from src.service.mtx_manager import MtxConfigManager
 
 # Get the test data directory
 TEST_DIR = Path(__file__).parent

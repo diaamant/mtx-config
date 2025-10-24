@@ -160,13 +160,13 @@ class MtxConfigManager:
         try:
             if validate:
                 # Validate specific configurations
-                if key == "paths.json" and isinstance(value, dict):
+                if key == "paths" and isinstance(value, dict):
                     # Validate each stream
                     for stream_name, stream_config in value.items():
                         StreamConfig(**stream_config)
-                elif key == "auth.json" and isinstance(value, dict):
+                elif key == "auth" and isinstance(value, dict):
                     AuthConfig(**value)
-                elif key == "values_rtsp.json" and isinstance(value, dict):
+                elif key == "rtsp" and isinstance(value, dict):
                     RTSPConfig(**value)
 
             self.data[key] = value

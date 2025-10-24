@@ -1,7 +1,6 @@
 """Tests for import/export functionality."""
 
-import pytest
-from src.mtx_manager import MtxConfigManager
+from src.service.mtx_manager import MtxConfigManager
 from src.clients.yaml_client import YAMLClient
 
 
