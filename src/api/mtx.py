@@ -11,13 +11,13 @@ from src.ui_components.paths_tab import build_paths_tab
 from src.ui_components.preview_tab import build_preview_tab
 from src.ui_components.rtsp_tab import build_rtsp_tab
 
+# Centralized manager for all configuration data
+config_manager = MtxConfigManager()
+
 
 def create_main_page():
     @ui.page("/")
     def main_page():
-        # Centralized manager for all configuration data
-        config_manager = MtxConfigManager()
-
         def save_and_notify() -> None:
             """Wrapper to call save function and show UI notification."""
             try:
@@ -56,10 +56,6 @@ def create_main_page():
                     ui.button("Закрыть", on_click=dialog.close).props("flat")
 
             dialog.open()
-
-        # --- Main UI Setup ---
-        config_manager.load_data()
-        config_manager.update_preview()
 
         def export_config() -> None:
             """Export current configuration to a file."""
@@ -125,37 +121,38 @@ def create_main_page():
                 logger.error(f"Import failed: {e}", exc_info=True)
                 ui.notify(f"Ошибка при импорте: {e}", color="negative", timeout=5000)
 
+        # --- Main UI Setup ---
+        config_manager.load_data()
+        config_manager.update_preview()
+
         with ui.header().classes("bg-primary"):
             ui.label("Mediamtx Configuration Editor").classes("text-2xl font-bold")
             ui.space()
 
-            ui.upload(
-                on_upload=handle_import,
-                auto_upload=True,
-                multiple=False,
-            ).props('accept=".yaml,.yml" icon="upload" color="accent"').classes(
-                "mr-2"
-            ).tooltip("Импорт конфигурации")
+            with (
+                ui.button(icon="upload", color="accent")
+                .classes("mr-2")
+                .tooltip("Импорт конфигурации")
+            ):
+                ui.upload(
+                    on_upload=handle_import,
+                    auto_upload=True,
+                    multiple=False,
+                ).props('accept=".yaml,.yml"').style("display: none")
+                ui.label("Импорт")
 
             # Export button
-            ui.button(
-                "Экспорт", on_click=export_config, icon="download", color="accent"
-            ).classes("mr-2")
-
-            ui.button(
-                "Валидация", on_click=validate_config, icon="check_circle", color="info"
-            ).classes("mr-2")
-
-            ui.button(
-                "Предпросмотр",
-                on_click=config_manager.update_preview,
-                icon="visibility",
-                color="accent",
-            ).classes("mr-2")
+            with (
+                ui.button(icon="download", color="accent")
+                .classes("mr-2")
+                .tooltip("Экспорт конфигурации") as export_btn
+            ):
+                export_btn.on("click", export_config)
+                ui.label("Экспорт")
 
             ui.button(
                 "Сохранить", on_click=save_and_notify, icon="save", color="positive"
-            )
+            ).tooltip("Сохранить конфигурацию")
 
         with ui.tabs().classes("w-full") as tabs:
             # Create tabs in a specific order

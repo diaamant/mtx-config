@@ -150,17 +150,16 @@ class YAMLClient(ConfigClient):
 
         # Шаг 3: Собираем финальную конфигурацию из словаря `data`
         final_config = {}
-        for key, content in data.items():
-            if key not in TAB_NAMES.keys():
+        for key_section, content in data.items():
+            if key_section not in TAB_NAMES.keys():
                 continue
 
-            if not data.get(f"{key}_enabled") or not content:
+            if not data.get(f"{key_section}_enabled") or not content:
                 continue
 
-            # Логика сборки, как у вас и была
-            if key == "paths":
+            if key_section == "paths":
                 final_config["paths"] = content
-            elif key == "pathDefaults":
+            elif key_section == "pathDefaults":
                 final_config["pathDefaults"] = content
             else:
                 final_config.update(content)
