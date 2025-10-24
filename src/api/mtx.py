@@ -129,17 +129,13 @@ def create_main_page():
             ui.label("Mediamtx Configuration Editor").classes("text-2xl font-bold")
             ui.space()
 
-            with (
-                ui.button(icon="upload", color="accent")
-                .classes("mr-2")
-                .tooltip("Импорт конфигурации")
-            ):
-                ui.upload(
-                    on_upload=handle_import,
-                    auto_upload=True,
-                    multiple=False,
-                ).props('accept=".yaml,.yml"').style("display: none")
-                ui.label("Импорт")
+            ui.upload(
+                on_upload=handle_import,
+                auto_upload=True,
+                multiple=False,
+            ).props('accept=".yaml,.yml" icon="upload" color="accent"').classes(
+                "mr-2"
+            ).tooltip("Импорт конфигурации")
 
             # Export button
             with (
