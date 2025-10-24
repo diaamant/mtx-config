@@ -43,6 +43,23 @@ class YAMLClient(ConfigClient):
             "This application's workflow is based on reading source JSON files, not the final YAML."
         )
 
+    def _convert_to_yaml_structure(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Convert internal data structure to YAML-compatible format."""
+        final_config = {}
+        for key_section, content in data.items():
+            if "_enabled" in key_section or not content:
+                continue
+
+            if key_section == "paths":
+                final_config["paths"] = content
+            elif key_section == "pathDefaults":
+                final_config["pathDefaults"] = content
+            else:
+                # All other keys go to the root
+                final_config.update(content)
+
+        return final_config
+
     def export_config(self, data: Dict[str, Any]) -> str:
         """Export configuration as YAML string.
 
@@ -75,6 +92,28 @@ class YAMLClient(ConfigClient):
             logger.error(f"Failed to export config to YAML: {e}")
             raise
 
+    def _convert_from_yaml_structure(self, yaml_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Разделяет основной словарь конфигурации на части согласно TAB_KEYS.
+        """
+        imported_data = {}
+        # Make a copy to avoid modifying the original dict while iterating
+        config_data = yaml_data.copy()
+
+        for tab_key, keys_or_name in TAB_KEYS.items():
+            key_section = f"{NAMES_TAB[tab_key]}"
+            if isinstance(keys_or_name, list):
+                # Pop a group of keys
+                imported_data[key_section] = _pop_keys_to_dict(config_data, keys_or_name)
+            elif isinstance(keys_or_name, str):
+                # Pop a single section (like pathDefaults or paths)
+                imported_data[key_section] = config_data.pop(keys_or_name, None)
+            imported_data[f"{key_section}_enabled"] = True
+
+        # Whatever is left in config_data is app_data
+        imported_data[f"{NAMES_TAB['APP']}"] = config_data
+        return imported_data
+
     def import_config(self, yaml_data: Dict[str, Any]) -> Dict[str, Any]:
         """Import configuration from parsed YAML data.
 
@@ -90,44 +129,6 @@ class YAMLClient(ConfigClient):
         except Exception as e:
             logger.error(f"Failed to import config from YAML: {e}")
             raise
-
-    def _convert_to_yaml_structure(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Convert internal data structure to YAML-compatible format."""
-        final_config = {}
-        for key_section, content in data.items():
-            if "_enabled" in key_section or not content:
-                continue
-
-            if key_section == "paths":
-                final_config["paths"] = content
-            elif key_section == "pathDefaults":
-                final_config["pathDefaults"] = content
-            else:
-                # All other keys go to the root
-                final_config.update(content)
-
-        return final_config
-
-    def _convert_from_yaml_structure(self, yaml_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Разделяет основной словарь конфигурации на части согласно TAB_KEYS.
-        """
-        imported_data = {}
-        # Make a copy to avoid modifying the original dict while iterating
-        config_data = yaml_data.copy()
-
-        for tab_key, keys_or_name in TAB_KEYS.items():
-            filename = f"{NAMES_TAB[tab_key]}"
-            if isinstance(keys_or_name, list):
-                # Pop a group of keys
-                imported_data[filename] = _pop_keys_to_dict(config_data, keys_or_name)
-            elif isinstance(keys_or_name, str):
-                # Pop a single section (like pathDefaults or paths)
-                imported_data[filename] = config_data.pop(keys_or_name, None)
-
-        # Whatever is left in config_data is app_data
-        imported_data[f"{NAMES_TAB['APP']}"] = config_data
-        return imported_data
 
     def save_config(self, data: Dict[str, Any]) -> None:
         """
