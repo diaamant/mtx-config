@@ -68,10 +68,9 @@ def create_main_page():
                 yaml_content = config_manager.export_config()
 
                 # Create a download link
-                ui.download(
+                ui.download.content(
                     content=yaml_content,
                     filename="mediamtx_config.yaml",
-                    label="Скачать конфигурацию",
                 )
 
                 ui.notify("Конфигурация успешно экспортирована!", color="positive")
