@@ -94,13 +94,13 @@ class YAMLClient(ConfigClient):
     def _convert_to_yaml_structure(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Convert internal data structure to YAML-compatible format."""
         final_config = {}
-        for json_filename, content in data.items():
-            if not json_filename.endswith(".json") or not content:
+        for key_section, content in data.items():
+            if "_enabled" in key_section or not content:
                 continue
 
-            if json_filename == "paths.json":
+            if key_section == "paths":
                 final_config["paths"] = content
-            elif json_filename == "pathDefaults.json":
+            elif key_section == "pathDefaults":
                 final_config["pathDefaults"] = content
             else:
                 # All other keys go to the root
@@ -154,10 +154,7 @@ class YAMLClient(ConfigClient):
             if key not in TAB_NAMES.keys():
                 continue
 
-            if not data.get(f"{key}_enabled"):
-                continue
-
-            if not content:
+            if not data.get(f"{key}_enabled") or not content:
                 continue
 
             # Логика сборки, как у вас и была
