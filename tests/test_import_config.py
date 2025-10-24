@@ -13,7 +13,7 @@ JSON_TEST_DIR = TEST_DIR / "json_test"
 # Expected JSON files
 EXPECTED_JSON_FILES = [
     "values_app.json",
-    "auth.json",
+    # "auth.json",  # Data is in values_app.json
     "paths.json",
     "values_hls.json",
     "values_pathDefaults.json",
@@ -74,6 +74,15 @@ class TestImportConfig:
                 if filepath.exists():
                     with open(filepath, "r", encoding="utf-8") as f:
                         self.expected_data[json_file] = json.load(f)
+        
+        # Manually load and merge auth.json into values_app.json for expectation
+        auth_filepath = JSON_TEST_DIR / "auth.json"
+        if auth_filepath.exists():
+            with open(auth_filepath, "r", encoding="utf-8") as f:
+                auth_data = json.load(f)
+                if "values_app.json" in self.expected_data:
+                    self.expected_data["values_app.json"]["auth"] = auth_data
+
 
     def test_import_config_structure(self):
         """Test that importing YAML produces the expected JSON structure."""
@@ -83,17 +92,27 @@ class TestImportConfig:
         # Get the imported data
         imported_data = self.manager.data
 
-        # Check that all expected JSON files are present
-        for json_file in self.expected_data:
-            assert json_file in imported_data, (
-                f"Missing expected JSON file in imported data: {json_file}"
-            )
+        # Check that all expected sections are present
+        for json_file, expected_content in self.expected_data.items():
+            section_name = json_file.replace("values_", "").replace(".json", "")
 
-            # For non-empty expected data, verify the content
-            if self.expected_data[json_file]:
-                assert imported_data[json_file] == self.expected_data[json_file], (
-                    f"Mismatch in {json_file}. Expected: {self.expected_data[json_file]}, Got: {imported_data[json_file]}"
+            if section_name == "app":
+                # The 'app' section contains multiple root keys in the YAML.
+                # The import logic should group them under the 'app' key.
+                assert section_name in imported_data, "Missing 'app' section in imported data"
+                # We compare the whole app dictionary.
+                assert imported_data[section_name] == expected_content, (
+                    f"Mismatch in {section_name}. Expected: {expected_content}, Got: {imported_data[section_name]}"
                 )
+            else:
+                assert section_name in imported_data, (
+                    f"Missing expected section in imported data: {section_name}"
+                )
+                # For non-empty expected data, verify the content
+                if expected_content:
+                    assert imported_data[section_name] == expected_content, (
+                        f"Mismatch in {section_name}. Expected: {expected_content}, Got: {imported_data[section_name]}"
+                    )
 
     def test_yaml_import_basic(self):
         """Test basic YAML import functionality."""
@@ -103,9 +122,9 @@ class TestImportConfig:
         # Verify we have some data
         assert self.manager.data, "No data imported"
 
-        # Verify paths.json exists (required by validation)
-        assert "paths.json" in self.manager.data, "paths.json is required but missing"
-        assert self.manager.data["paths.json"], "paths.json should not be empty"
+        # Verify paths section exists (required by validation)
+        assert "paths" in self.manager.data, "paths section is required but missing"
+        assert self.manager.data["paths"], "paths section should not be empty"
 
     def test_import_export_consistency(self):
         """Test that importing and then exporting produces equivalent YAML."""
