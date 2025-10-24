@@ -104,7 +104,9 @@ class YAMLClient(ConfigClient):
             key_section = f"{NAMES_TAB[tab_key]}"
             if isinstance(keys_or_name, list):
                 # Pop a group of keys
-                imported_data[key_section] = _pop_keys_to_dict(config_data, keys_or_name)
+                imported_data[key_section] = _pop_keys_to_dict(
+                    config_data, keys_or_name
+                )
             elif isinstance(keys_or_name, str):
                 # Pop a single section (like pathDefaults or paths)
                 imported_data[key_section] = config_data.pop(keys_or_name, None)

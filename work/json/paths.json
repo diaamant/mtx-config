@@ -5,7 +5,7 @@
         "sourceOnDemand": true
     },
     "avh": {
-        "runOnDemand": "gst-launch-1.0 pulsesrc device=alsa_input.usb-0c76_USB_PnP_Audio_Device-00.mono-fallback do-timestamp=true volume=1.0 buffer-time=2000000 ! queue name=audio_source  audio_source. ! audio/x-raw, channels=1, rate=48000 ! queue ! audioconvert ! queue ! audioresample ! audio/x-raw, channels=1, rate=24000 ! queue ! opusenc bandwidth=1104 bitrate=64000 bitrate-type=1 inband-fec=FALSE packet-loss-percentage=0 dtx=FALSE ! queue ! opusparse ! queue ! sink. urisourcebin uri=\"rtsp://unit057:1KZez0Vo7Cid@127.0.0.1:$RTSP_PORT/vh\" ! queue ! application/x-rtp,media=video ! queue ! parsebin ! queue ! h264parse ! queue ! sink. rtspclientsink name=sink location=rtsp://unit057:1KZez0Vo7Cid@localhost:$RTSP_PORT/avh",
+        "runOnDemand": "gst-launch-1.0 pulsesrc device=alsa_input.usb-0c76_USB_PnP_Audio_Device-00.mono-fallback do-timestamp=true volume=1.0 buffer-time=2000000 ! queue name=audio_source  audio_source. ! audio/x-raw, channels=1, rate=48000 ! queue ! audioconvert ! queue ! audioresample ! audio/x-raw, channels=1, rate=24000 ! queue ! opusenc bandwidth=1104 bitrate=64000 bitrate-type=1 inband-fec=FALSE packet-loss-percentage=0 dtx=FALSE ! queue ! opusparse ! queue ! sink. urisourcebin uri=\"rtsp://unit058:fMCGdnC0FUSS@127.0.0.1:$RTSP_PORT/vh\" ! queue ! application/x-rtp,media=video ! queue ! parsebin ! queue ! h264parse ! queue ! sink. rtspclientsink name=sink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/avh",
         "runOnDemandRestart": true,
         "runOnDemandStartTimeout": "9s"
     },
@@ -15,7 +15,7 @@
         "sourceOnDemand": true
     },
     "avl": {
-        "runOnDemand": "gst-launch-1.0 pulsesrc device=alsa_input.usb-0c76_USB_PnP_Audio_Device-00.mono-fallback do-timestamp=true volume=1.0 buffer-time=2000000 ! queue name=audio_source  audio_source. ! audio/x-raw, channels=1, rate=48000 ! queue ! audioconvert ! queue ! audioresample ! audio/x-raw, channels=1, rate=24000 ! queue ! opusenc bandwidth=1104 bitrate=64000 bitrate-type=1 inband-fec=FALSE packet-loss-percentage=0 dtx=FALSE ! queue ! opusparse ! queue ! sink. urisourcebin uri=\"rtsp://unit057:1KZez0Vo7Cid@127.0.0.1:$RTSP_PORT/vl\" ! queue ! application/x-rtp,media=video ! queue ! parsebin ! queue ! h264parse ! queue ! sink. rtspclientsink name=sink location=rtsp://unit057:1KZez0Vo7Cid@localhost:$RTSP_PORT/avl",
+        "runOnDemand": "gst-launch-1.0 pulsesrc device=alsa_input.usb-0c76_USB_PnP_Audio_Device-00.mono-fallback do-timestamp=true volume=1.0 buffer-time=2000000 ! queue name=audio_source  audio_source. ! audio/x-raw, channels=1, rate=48000 ! queue ! audioconvert ! queue ! audioresample ! audio/x-raw, channels=1, rate=24000 ! queue ! opusenc bandwidth=1104 bitrate=64000 bitrate-type=1 inband-fec=FALSE packet-loss-percentage=0 dtx=FALSE ! queue ! opusparse ! queue ! sink. urisourcebin uri=\"rtsp://unit058:fMCGdnC0FUSS@127.0.0.1:$RTSP_PORT/vl\" ! queue ! application/x-rtp,media=video ! queue ! parsebin ! queue ! h264parse ! queue ! sink. rtspclientsink name=sink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/avl",
         "runOnReadyRestart": true,
         "runOnDemandStartTimeout": "9s"
     },
@@ -37,70 +37,63 @@
         "rtspTransport": "tcp",
         "sourceOnDemand": true
     },
-    "vgh0": {
-        "runOnDemand": "gst-launch-1.0 rtspsrc location=\"rtsp://root:ipc@192.168.1.123:554/stream=0\" name=src01 ! rtpjitterbuffer latency=100 ! queue ! rtph265depay ! h265parse ! rtspclientsink location=rtsp://unit057:1KZez0Vo7Cid@localhost:8554/vgh0",
-        "runOnDemandRestart": true,
-        "runOnDemandStartTimeout": "5s"
-    },
     "vgh": {
-        "runOnDemand": "gst-launch-1.0 rtspsrc location=\"rtsp://root:ipc@192.168.1.123:554/stream=0\" name=src01 ! rtpjitterbuffer latency=100 ! queue ! rtph265depay ! h265parse ! rtspclientsink location=rtsp://unit057:1KZez0Vo7Cid@localhost:$RTSP_PORT/$RTSP_PATH",
+        "runOnDemand": "gst-launch-1.0 rtspsrc name=rtspsrc01 location=\"rtsp://root:ipc@192.168.1.123:554/stream=0\" rtspsrc01. ! application/x-rtp,media=video ! rtpjitterbuffer latency=100 ! queue ! parsebin ! queue ! sink. rtspclientsink name=sink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH",
         "runOnDemandRestart": true,
         "runOnDemandStartTimeout": "5s"
     },
     "vgl": {
-        "runOnDemand": "gst-launch-1.0 rtspsrc name=rtspsrc01 location=\"rtsp://root:ipc@192.168.1.123:554/stream=1\" rtspsrc01. ! application/x-rtp,media=video ! rtpjitterbuffer latency=100 ! queue ! parsebin ! queue ! sink. rtspclientsink name=sink location=rtsp://unit057:1KZez0Vo7Cid@localhost:$RTSP_PORT/$RTSP_PATH",
+        "runOnDemand": "gst-launch-1.0 rtspsrc name=rtspsrc01 location=\"rtsp://root:ipc@192.168.1.123:554/stream=1\" rtspsrc01. ! application/x-rtp,media=video ! rtpjitterbuffer latency=100 ! queue ! parsebin ! queue ! sink. rtspclientsink name=sink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH",
         "runOnDemandRestart": true,
         "runOnDemandStartTimeout": "5s"
     },
     "opus": {
-        "runOnDemand": "gst-launch-1.0 pulsesrc device=\"alsa_input.usb-0c76_USB_PnP_Audio_Device-00.mono-fallback\" do-timestamp=true volume=1.0 ! audio/x-raw, channels=1, rate=48000 ! queue ! audioconvert ! queue ! audioresample ! audio/x-raw, channels=1, rate=24000 ! queue ! opusenc audio-type=2048 bandwidth=1104 bitrate=96000 bitrate-type=1 inband-fec=FALSE packet-loss-percentage=0 dtx=FALSE ! opusparse ! queue name=mq01 ! sink. rtspclientsink name=sink location=rtsp://unit057:1KZez0Vo7Cid@localhost:$RTSP_PORT/$RTSP_PATH",
-        "runOnDemandRestart": true,
-        "runOnDemandStartTimeout": "7s"
-    },
-    "opus02": {
-        "runOnDemand": "gst-launch-1.0 pulsesrc device=\"alsa_input.usb-0c76_USB_PnP_Audio_Device-00.analog-stereo\" do-timestamp=true volume=1.0 ! audio/x-raw, channels=1, rate=48000 ! queue ! audioconvert ! queue ! audioresample ! audio/x-raw, channels=1, rate=24000 ! queue ! opusenc audio-type=2048 bandwidth=1104 bitrate=96000 bitrate-type=1 inband-fec=FALSE packet-loss-percentage=0 dtx=FALSE ! opusparse ! queue name=mq01 ! sink. rtspclientsink name=sink location=rtsp://unit057:1KZez0Vo7Cid@localhost:$RTSP_PORT/$RTSP_PATH",
+        "runOnDemand": "gst-launch-1.0 pulsesrc device=\"alsa_input.usb-0c76_USB_PnP_Audio_Device-00.mono-fallback\" do-timestamp=true volume=1.0 ! audio/x-raw, channels=1, rate=48000 ! queue ! audioconvert ! queue ! audioresample ! audio/x-raw, channels=1, rate=24000 ! queue ! opusenc audio-type=2048 bandwidth=1104 bitrate=96000 bitrate-type=1 inband-fec=FALSE packet-loss-percentage=0 dtx=FALSE ! opusparse ! queue name=mq01 ! sink. rtspclientsink name=sink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH",
         "runOnDemandRestart": true,
         "runOnDemandStartTimeout": "7s"
     },
     "snd": {
-        "runOnDemand": "gst-launch-1.0 pulsesrc device=\"alsa_input.usb-0c76_USB_PnP_Audio_Device-00.mono-fallback\" do-timestamp=true volume=1.0 ! audio/x-raw, channels=1, rate=48000 ! queue ! audioconvert ! queue ! audioresample ! audio/x-raw, channels=1, rate=24000 ! queue ! voaacenc bitrate=32000 ! aacparse ! queue ! sink. rtspclientsink name=sink location=rtsp://unit057:1KZez0Vo7Cid@localhost:$RTSP_PORT/$RTSP_PATH",
+        "runOnDemand": "gst-launch-1.0 pulsesrc device=\"alsa_input.usb-0c76_USB_PnP_Audio_Device-00.mono-fallback\" do-timestamp=true volume=1.0 ! audio/x-raw, channels=1, rate=48000 ! queue ! audioconvert ! queue ! audioresample ! audio/x-raw, channels=1, rate=24000 ! queue ! voaacenc bitrate=32000 ! aacparse ! queue ! sink. rtspclientsink name=sink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH",
         "runOnDemandRestart": true,
         "runOnDemandStartTimeout": "7s",
         "runOnDemandCloseAfter": "1s"
     },
     "snd01": {
-        "runOnDemand": "gst-launch-1.0 pulsesrc device=\"alsa_input.usb-0c76_USB_PnP_Audio_Device-00.mono-fallback\" do-timestamp=true volume=1.0 ! audio/x-raw, channels=1, rate=48000 ! queue ! audioconvert ! queue ! audioresample ! audio/x-raw, channels=1, rate=24000 ! queue ! voaacenc bitrate=32000 ! aacparse ! queue ! sink. rtspclientsink name=sink location=rtsp://unit057:1KZez0Vo7Cid@localhost:$RTSP_PORT/$RTSP_PATH",
+        "runOnDemand": "gst-launch-1.0 pulsesrc device=\"alsa_input.usb-0c76_USB_PnP_Audio_Device-00.mono-fallback\" do-timestamp=true volume=1.0 ! audio/x-raw, channels=1, rate=48000 ! queue ! audioconvert ! queue ! audioresample ! audio/x-raw, channels=1, rate=24000 ! queue ! voaacenc bitrate=32000 ! aacparse ! queue ! sink. rtspclientsink name=sink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH",
         "runOnDemandRestart": true,
         "runOnDemandStartTimeout": "7s",
         "runOnDemandCloseAfter": "1s"
     },
     "snd02": {
-        "runOnDemand": "gst-launch-1.0 pulsesrc device=\"alsa_input.usb-0c76_USB_PnP_Audio_Device-00.analog-stereo\" do-timestamp=true volume=1.0 ! audio/x-raw, channels=2, rate=48000 ! queue name=queue01a ! audioconvert ! queue name=queue02a ! audioresample ! audio/x-raw, channels=2, rate=24000 ! queue name=queue03a ! voaacenc bitrate=32000 ! aacparse ! queue name=mq01 ! sink. rtspclientsink name=sink location=rtsp://unit057:1KZez0Vo7Cid@localhost:$RTSP_PORT/$RTSP_PATH",
-        "runOnDemandRestart": true,
-        "runOnDemandStartTimeout": "5s",
-        "runOnDemandCloseAfter": "1s"
-    },
-    "BY-M3D": {
-        "runOnDemand": "gst-launch-1.0 pulsesrc device=\"alsa_input.usb-0c76_USB_PnP_Audio_Device-00.analog-stereo\" do-timestamp=true volume=1.0 ! audio/x-raw, channels=2, rate=48000 ! queue name=queue01a ! audioconvert ! queue name=queue02a ! audioresample ! audio/x-raw, channels=2, rate=24000 ! queue name=queue03a ! voaacenc bitrate=32000 ! aacparse ! queue name=mq01 ! sink. rtspclientsink name=sink location=rtsp://unit057:1KZez0Vo7Cid@localhost:$RTSP_PORT/$RTSP_PATH",
+        "runOnDemand": "gst-launch-1.0 pulsesrc device=\"alsa_input.usb-0c76_USB_PnP_Audio_Device-00.analog-stereo\" do-timestamp=true volume=1.0 ! audio/x-raw, channels=2, rate=48000 ! queue name=queue01a ! audioconvert ! queue name=queue02a ! audioresample ! audio/x-raw, channels=2, rate=24000 ! queue name=queue03a ! voaacenc bitrate=32000 ! aacparse ! queue name=mq01 ! sink. rtspclientsink name=sink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH",
         "runOnDemandRestart": true,
         "runOnDemandStartTimeout": "5s",
         "runOnDemandCloseAfter": "1s"
     },
     "snd03": {
-        "runOnDemand": "gst-launch-1.0 pulsesrc device=\"alsa_input.usb-KTMicro_BY-LM40_214b206000000178-00.mono-fallback\" do-timestamp=true volume=1.0 ! audio/x-raw, channels=1, rate=48000 ! queue name=queue01a ! audioconvert ! queue name=queue02a ! audioresample ! audio/x-raw, channels=1, rate=24000 ! queue name=queue03a ! voaacenc bitrate=32000 ! aacparse ! queue name=mq01 ! sink. rtspclientsink name=sink location=rtsp://unit057:1KZez0Vo7Cid@localhost:$RTSP_PORT/$RTSP_PATH",
+        "runOnDemand": "gst-launch-1.0 pulsesrc device=\"alsa_input.usb-KTMicro_BY-LM40_214b206000000178-00.mono-fallback\" do-timestamp=true volume=1.0 ! audio/x-raw, channels=1, rate=48000 ! queue name=queue01a ! audioconvert ! queue name=queue02a ! audioresample ! audio/x-raw, channels=1, rate=24000 ! queue name=queue03a ! voaacenc bitrate=32000 ! aacparse ! queue name=mq01 ! sink. rtspclientsink name=sink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH",
         "runOnDemandRestart": true,
         "runOnDemandStartTimeout": "7s",
         "runOnDemandCloseAfter": "1s"
     },
-    "BY-LM40": {
-        "runOnDemand": "gst-launch-1.0 pulsesrc device=\"alsa_input.usb-KTMicro_BY-LM40_214b206000000178-00.mono-fallback\" do-timestamp=true volume=1.0 ! audio/x-raw, channels=1, rate=48000 ! queue name=queue01a ! audioconvert ! queue name=queue02a ! audioresample ! audio/x-raw, channels=1, rate=24000 ! queue name=queue03a ! voaacenc bitrate=32000 ! aacparse ! queue name=mq01 ! sink. rtspclientsink name=sink location=rtsp://unit057:1KZez0Vo7Cid@localhost:$RTSP_PORT/$RTSP_PATH",
+    "vl264": {
+        "runOnDemand": "gst-launch-1.0 rtspsrc name=rtspsrc01 location=\"rtsp://root:ipc@192.168.1.123:554/stream=1\" rtspsrc01. ! application/x-rtp,media=video ! rtpjitterbuffer latency=100 ! queue ! rtph264depay ! h264parse ! rtspclientsink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH",
         "runOnDemandRestart": true,
-        "runOnDemandStartTimeout": "7s"
+        "runOnDemandStartTimeout": "5s"
     },
-    "JMTek01": {
-        "runOnDemand": "gst-launch-1.0 pulsesrc device=\"alsa_input.usb-0c76_USB_Audio_Device-00.mono-fallback\" do-timestamp=true volume=1.0 ! audio/x-raw, channels=1, rate=44100 ! queue name=queue01a ! audioconvert ! queue name=queue02a ! audioresample ! audio/x-raw, channels=1, rate=24000 ! queue name=queue03a ! voaacenc bitrate=32000 ! aacparse ! queue name=mq01 ! sink. rtspclientsink name=sink location=rtsp://unit057:1KZez0Vo7Cid@localhost:$RTSP_PORT/$RTSP_PATH",
+    "vh265": {
+        "runOnDemand": "gst-launch-1.0 rtspsrc name=rtspsrc01 location=\"rtsp://root:ipc@192.168.1.123:554/stream=0\" rtspsrc01. ! application/x-rtp,media=video ! rtpjitterbuffer latency=100 ! queue ! rtph265depay ! h265parse ! rtspclientsink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH",
         "runOnDemandRestart": true,
-        "runOnDemandStartTimeout": "5s",
-        "runOnDemandCloseAfter": "1s"
+        "runOnDemandStartTimeout": "5s"
+    },
+    "vh264": {
+        "runOnDemand": "gst-launch-1.0 rtspsrc name=rtspsrc01 location=\"rtsp://root:ipc@192.168.1.123:554/stream=0\" rtspsrc01. ! application/x-rtp,media=video ! rtpjitterbuffer latency=100 ! queue ! rtph264depay ! h264parse ! rtspclientsink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH",
+        "runOnDemandRestart": true,
+        "runOnDemandStartTimeout": "5s"
+    },
+    "vl265": {
+        "runOnDemand": "gst-launch-1.0 rtspsrc name=rtspsrc01 location=\"rtsp://root:ipc@192.168.1.123:554/stream=1\" rtspsrc01. ! application/x-rtp,media=video ! rtpjitterbuffer latency=100 ! queue ! rtph265depay ! h265parse ! rtspclientsink location=rtsp://unit058:fMCGdnC0FUSS@localhost:$RTSP_PORT/$RTSP_PATH",
+        "runOnDemandRestart": true,
+        "runOnDemandStartTimeout": "5s"
     }
 }

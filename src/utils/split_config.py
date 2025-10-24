@@ -62,7 +62,8 @@ def main():
     # Рассчитываем пути относительно расположения этого скрипта
     # (Path(__file__).parent.parent.parent) - поднимаемся на 3 уровня
     default_base_dir = script_path.parent.parent.parent
-    default_config_file = default_base_dir / "work/orig/mediamtx01.yml"
+    # default_config_file = default_base_dir / "work/orig/mediamtx01.yml"
+    default_config_file = default_base_dir / "work/mediamtx01.yml"
     default_output_dir = default_base_dir / "work/json/"
 
     # --- 2. Настройка argparse ---
